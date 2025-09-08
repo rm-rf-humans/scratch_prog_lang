@@ -41,7 +41,20 @@ class GameChallenge:
             interpreter.max_instructions = self.max_instructions
             
             world = self.world_creator()
-            runner = VaultRunner(world, self.start_pos, self.start_dir)
+            
+            # For Extension Challenge, randomize starting position and direction
+            if self.name == "Extension Challenge":
+                import random
+                # Random starting position (any floor tile in 3x3 room)
+                possible_positions = [(x, y) for x in range(3) for y in range(3)]
+                start_pos = random.choice(possible_positions)
+                # Random starting direction (0=North, 1=East, 2=South, 3=West)
+                start_dir = random.randint(0, 3)
+                runner = VaultRunner(world, start_pos, start_dir)
+                # Set the correct key position for extension challenge
+                runner.correct_key_pos = (1, 2)  # The key at (1,2) is the correct one
+            else:
+                runner = VaultRunner(world, self.start_pos, self.start_dir)
             
             start_time = time.time()
             result = interpreter.run(runner, show_steps=False)
@@ -153,6 +166,16 @@ class VaultRunnerGame:
                 start_dir=1,  # East
                 success_condition="Escape in minimum instructions",
                 max_instructions=100
+            ),
+            
+            GameChallenge(
+                name="Extension Challenge",
+                description="Solve a map with multiple keys, one door, and one exit. Only one key opens the door. Unknown starting position and direction!",
+                world_creator=lambda: self._create_extension_world(),
+                start_pos=(1, 1),  # Center of 3x3 room
+                start_dir=0,  # Will be randomized in test_program
+                success_condition="Find the correct key and escape through the door",
+                max_instructions=3000
             )
         ]
         
@@ -185,6 +208,34 @@ class VaultRunnerGame:
         
         # Key in the middle
         world[(2, 1)] = 'key'
+        
+        return world
+    
+    def _create_extension_world(self):
+        """Create the extension challenge world with multiple keys, one door, and one exit."""
+        world = {}
+        
+        # 3x3 orthogonal rectangular room (as specified)
+        for x in range(3):
+            for y in range(3):
+                world[(x, y)] = 'floor'
+        
+        # Four surrounding walls
+        for x in range(-1, 4):
+            world[(x, -1)] = 'wall'  # Bottom wall
+            world[(x, 3)] = 'wall'   # Top wall
+        for y in range(-1, 4):
+            world[(-1, y)] = 'wall'  # Left wall
+            world[(3, y)] = 'wall'   # Right wall
+        
+        # Multiple keys - only one will work (we'll need to modify the interpreter to handle this)
+        world[(0, 0)] = 'key'  # Wrong key
+        world[(2, 0)] = 'key'  # Wrong key
+        world[(1, 2)] = 'key'  # Correct key (this one opens the door)
+        
+        # One door and one exit
+        world[(2, 1)] = 'door'
+        world[(0, 2)] = 'exit'
         
         return world
     

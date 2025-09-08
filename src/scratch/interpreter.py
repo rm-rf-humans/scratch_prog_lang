@@ -194,7 +194,11 @@ class VaultInterpreter:
             
         elif token == 'PICK':
             had_key = self.runner.has_key
-            self.runner.pick_key()
+            # Check if this is the extension challenge
+            if hasattr(self.runner, 'correct_key_pos'):
+                self.runner.pick_key_extension(self.runner.correct_key_pos)
+            else:
+                self.runner.pick_key()
             if show_steps and not had_key and self.runner.has_key:
                 print("Key collected!")
                 self.runner.display_world()

@@ -105,6 +105,22 @@ class VaultRunner:
             self.actions_log.append("Cannot pick key - not on key tile or already have key")
             return False
     
+    def pick_key_extension(self, correct_key_pos):
+        """Pick up a key for extension challenge - only the correct key works."""
+        if self.on_key() and not self.has_key:
+            current_pos = (self.x, self.y)
+            if current_pos == correct_key_pos:
+                self.has_key = True
+                self.world[(self.x, self.y)] = 'floor'
+                self.actions_log.append("Picked up correct key")
+                return True
+            else:
+                self.actions_log.append("Picked up wrong key - door won't open")
+                return False
+        else:
+            self.actions_log.append("Cannot pick key - not on key tile or already have key")
+            return False
+    
     def open_door(self):
         """Open door if at door and have key."""
         if self.at_door() and self.has_key:
