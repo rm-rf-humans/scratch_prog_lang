@@ -1,5 +1,20 @@
 class VaultInterpreter:
+    """
+    Interpreter for the Vault Runner programming language.
+    
+    This interpreter executes programs written in a simple language designed
+    to control a robot in a 2D vault environment. The language supports
+    movement, sensing, control flow, and state management within strict
+    constraints (max 20 distinct tokens).
+    """
+    
     def __init__(self, program_lines):
+        """
+        Initialize the interpreter with a program.
+        
+        Args:
+            program_lines: List of strings representing the program code
+        """
         self.program = [line.strip().upper() for line in program_lines if line.strip()]
         self.tokens = self._tokenize()
         self.pc = 0  # Program counter
@@ -9,6 +24,7 @@ class VaultInterpreter:
         self.max_instructions = 10000  # Safety limit
         self.instruction_count = 0
         self.debug_mode = False
+        self.execution_history = []  # Track execution for debugging
     
     def _tokenize(self):
         """Convert program lines into tokens."""
@@ -87,127 +103,63 @@ class VaultInterpreter:
         self.debug_mode = enabled
     
     def run(self, runner, show_steps=False):
-        """Execute the program with the given robot."""
+        """
+        Execute the program with the given robot.
+        
+        Args:
+            runner: VaultRunner instance to control
+            show_steps: Whether to display world state after each step
+            
+        Returns:
+            bool: True if robot escaped, False otherwise
+        """
         self.runner = runner
         self.pc = 0
         self.call_stack = []
         self.flag = False
         self.instruction_count = 0
+        self.execution_history = []
         
         print("=== Starting program execution ===")
         if show_steps:
             self.runner.display_world()
         
-        while self.pc < len(self.tokens) and not self.runner.escaped:
-            if self.instruction_count >= self.max_instructions:
-                print(f"Program terminated - exceeded maximum instructions ({self.max_instructions})")
-                break
-            
-            self.instruction_count += 1
-            token = self.tokens[self.pc]
-            
+        try:
+            while self.pc < len(self.tokens) and not self.runner.escaped:
+                if self.instruction_count >= self.max_instructions:
+                    print(f"Program terminated - exceeded maximum instructions ({self.max_instructions})")
+                    break
+                
+                self.instruction_count += 1
+                token = self.tokens[self.pc]
+                
+                # Record execution step for debugging
+                step_info = {
+                    'pc': self.pc,
+                    'token': token,
+                    'position': (self.runner.x, self.runner.y),
+                    'direction': self.runner.direction,
+                    'has_key': self.runner.has_key,
+                    'door_opened': self.runner.door_opened
+                }
+                self.execution_history.append(step_info)
+                
+                if self.debug_mode:
+                    print(f"PC: {self.pc:3d}, Token: {token:6s}, Pos: ({self.runner.x}, {self.runner.y}), Dir: {self.runner.direction}")
+                
+                # Execute the current instruction
+                self._execute_instruction(token, show_steps)
+                
+                self.pc += 1
+                self.runner.check_escape()
+                
+        except Exception as e:
+            print(f"Execution error at PC {self.pc}: {e}")
             if self.debug_mode:
-                print(f"PC: {self.pc:3d}, Token: {token:6s}, Pos: ({self.runner.x}, {self.runner.y}), Dir: {self.runner.direction}")
-            
-            # Action commands
-            if token == 'MOVE':
-                old_pos = (self.runner.x, self.runner.y)
-                self.runner.move_forward()
-                if show_steps and (self.runner.x, self.runner.y) != old_pos:
-                    self.runner.display_world()
-                    
-            elif token == 'LEFT':
-                self.runner.turn_left()
-                
-            elif token == 'RIGHT':
-                self.runner.turn_right()
-                
-            elif token == 'RTURN':
-                self.runner.random_turn()
-                
-            elif token == 'PICK':
-                had_key = self.runner.has_key
-                self.runner.pick_key()
-                if show_steps and not had_key and self.runner.has_key:
-                    print("Key collected!")
-                    self.runner.display_world()
-                
-            elif token == 'OPEN':
-                was_opened = self.runner.door_opened
-                self.runner.open_door()
-                if show_steps and not was_opened and self.runner.door_opened:
-                    print("Door opened!")
-                    self.runner.display_world()
-            
-            # Control structures
-            elif token == 'LOOP':
-                count = self.tokens[self.pc + 1]
-                end_pc = self._find_matching_end(self.pc)
-                self.call_stack.append(('LOOP', self.pc + 2, end_pc, count))
-                self.pc += 1  # Skip the count
-                
-            elif token == 'WHILE':
-                sensor = self.tokens[self.pc + 1]
-                condition = self._evaluate_sensor(sensor)
-                end_pc = self._find_matching_end(self.pc)
-                
-                if condition:
-                    self.call_stack.append(('WHILE', self.pc, end_pc, sensor))
-                    self.pc += 1  # Skip the sensor
-                else:
-                    self.pc = end_pc
-                    
-            elif token == 'IF':
-                sensor = self.tokens[self.pc + 1]
-                condition = self._evaluate_sensor(sensor)
-                end_pc = self._find_matching_end(self.pc)
-                
-                if condition:
-                    self.pc += 1  # Skip the sensor, continue with IF body
-                else:
-                    self.pc = end_pc  # Skip to END
-                    
-            elif token == 'END':
-                if self.call_stack:
-                    structure_type, start_pc, end_pc, data = self.call_stack[-1]
-                    
-                    if structure_type == 'LOOP':
-                        count = data - 1
-                        if count > 0:
-                            self.call_stack[-1] = ('LOOP', start_pc, end_pc, count)
-                            self.pc = start_pc - 1
-                        else:
-                            self.call_stack.pop()
-                            
-                    elif structure_type == 'WHILE':
-                        sensor = data
-                        condition = self._evaluate_sensor(sensor)
-                        if condition:
-                            self.pc = start_pc
-                        else:
-                            self.call_stack.pop()
-                    
-                    else:  # IF
-                        self.call_stack.pop()
-            
-            # Flag operations
-            elif token == 'SET':
-                self.flag = True
-                
-            elif token == 'CLR':
-                self.flag = False
-
-            elif token in ['FRONT', 'KEY', 'DOOR', 'EXIT']:
-                # Skip sensor tokens when they appear after control structures
-                if not self.call_stack or self.call_stack[-1][0] not in ['IF', 'WHILE']:
-                    raise RuntimeError(f"Sensor '{token}' can only be used with IF or WHILE")
-
-            else:
-                if not isinstance(token, int):  # Skip numbers that are parameters
-                    raise RuntimeError(f"Unknown command: {token}")
-            
-            self.pc += 1
-            self.runner.check_escape()
+                print("Execution history:")
+                for i, step in enumerate(self.execution_history[-5:]):  # Show last 5 steps
+                    print(f"  Step {i}: {step}")
+            raise
         
         print(f"\n=== Program execution completed ===")
         print(f"Instructions executed: {self.instruction_count}")
@@ -221,6 +173,105 @@ class VaultInterpreter:
             self.runner.display_world()
         
         return self.runner.escaped
+    
+    def _execute_instruction(self, token, show_steps):
+        """Execute a single instruction."""
+        # Action commands
+        if token == 'MOVE':
+            old_pos = (self.runner.x, self.runner.y)
+            self.runner.move_forward()
+            if show_steps and (self.runner.x, self.runner.y) != old_pos:
+                self.runner.display_world()
+                
+        elif token == 'LEFT':
+            self.runner.turn_left()
+            
+        elif token == 'RIGHT':
+            self.runner.turn_right()
+            
+        elif token == 'RTURN':
+            self.runner.random_turn()
+            
+        elif token == 'PICK':
+            had_key = self.runner.has_key
+            self.runner.pick_key()
+            if show_steps and not had_key and self.runner.has_key:
+                print("Key collected!")
+                self.runner.display_world()
+            
+        elif token == 'OPEN':
+            was_opened = self.runner.door_opened
+            self.runner.open_door()
+            if show_steps and not was_opened and self.runner.door_opened:
+                print("Door opened!")
+                self.runner.display_world()
+        
+        # Control structures
+        elif token == 'LOOP':
+            count = self.tokens[self.pc + 1]
+            end_pc = self._find_matching_end(self.pc)
+            self.call_stack.append(('LOOP', self.pc + 2, end_pc, count))
+            self.pc += 1  # Skip the count
+            
+        elif token == 'WHILE':
+            sensor = self.tokens[self.pc + 1]
+            condition = self._evaluate_sensor(sensor)
+            end_pc = self._find_matching_end(self.pc)
+            
+            if condition:
+                self.call_stack.append(('WHILE', self.pc, end_pc, sensor))
+                self.pc += 1  # Skip the sensor
+            else:
+                self.pc = end_pc
+                
+        elif token == 'IF':
+            sensor = self.tokens[self.pc + 1]
+            condition = self._evaluate_sensor(sensor)
+            end_pc = self._find_matching_end(self.pc)
+            
+            if condition:
+                self.pc += 1  # Skip the sensor, continue with IF body
+            else:
+                self.pc = end_pc  # Skip to END
+                
+        elif token == 'END':
+            if self.call_stack:
+                structure_type, start_pc, end_pc, data = self.call_stack[-1]
+                
+                if structure_type == 'LOOP':
+                    count = data - 1
+                    if count > 0:
+                        self.call_stack[-1] = ('LOOP', start_pc, end_pc, count)
+                        self.pc = start_pc - 1
+                    else:
+                        self.call_stack.pop()
+                        
+                elif structure_type == 'WHILE':
+                    sensor = data
+                    condition = self._evaluate_sensor(sensor)
+                    if condition:
+                        self.pc = start_pc
+                    else:
+                        self.call_stack.pop()
+                
+                else:  # IF
+                    self.call_stack.pop()
+        
+        # Flag operations
+        elif token == 'SET':
+            self.flag = True
+            
+        elif token == 'CLR':
+            self.flag = False
+
+        elif token in ['FRONT', 'KEY', 'DOOR', 'EXIT']:
+            # Skip sensor tokens when they appear after control structures
+            if not self.call_stack or self.call_stack[-1][0] not in ['IF', 'WHILE']:
+                raise RuntimeError(f"Sensor '{token}' can only be used with IF or WHILE")
+
+        else:
+            if not isinstance(token, int):  # Skip numbers that are parameters
+                raise RuntimeError(f"Unknown command: {token}")
     
     def get_token_count(self):
         """Return the total number of tokens in the program."""
