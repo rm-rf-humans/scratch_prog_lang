@@ -6,6 +6,7 @@ A simple programming language for controlling a robot in a 2D vault environment.
 
 - **Core Language**: Simple, constraint-based programming language (max 20 distinct tokens)
 - **Interactive Game**: Play challenges and learn programming concepts
+- **GUI Interface**: Modern PyQt5-based graphical interface with visual world display
 - **Language Extensions**: Advanced commands for complex scenarios
 - **Visual Simulation**: Real-time robot movement visualization
 - **Comprehensive Testing**: Full test suite with benchmarks
@@ -91,6 +92,26 @@ GOTO
 IF DOOR
     OPEN
 END
+```
+
+##  GUI Interface
+
+The Vault Runner GUI provides a modern graphical interface with:
+
+- **Visual World Display**: Real-time 2D visualization of the robot world
+- **Program Editor**: Syntax-highlighted code editor with program analysis
+- **Interactive Execution**: Step-by-step program execution with visual feedback
+- **Challenge Selection**: Easy switching between different game challenges
+- **Real-time Feedback**: Live updates of robot position, state, and execution progress
+
+### Launch the GUI
+
+```bash
+# Launch GUI directly
+python3 launch_gui.py
+
+# Or through the main application (option 9)
+python -m scratch
 ```
 
 ##  Game Features

@@ -26,9 +26,10 @@ def interactive_demo():
         print("6. Show world visualizations only")
         print("7. Play the Vault Runner Game")
         print("8. Try Language Extensions")
-        print("9. Exit")
+        print("9. Launch GUI Game")
+        print("10. Exit")
         
-        choice = input("\nEnter your choice (1-9): ").strip()
+        choice = input("\nEnter your choice (1-10): ").strip()
         
         if choice == '1':
             print_program_analysis()
@@ -56,6 +57,9 @@ def interactive_demo():
             demo_extensions()
             
         elif choice == '9':
+            launch_gui_game()
+            
+        elif choice == '10':
             print("Goodbye!")
             break
             
@@ -395,6 +399,23 @@ def demo_extensions():
         
     except Exception as e:
         print(f"Error: {e}")
+        import traceback
+        traceback.print_exc()
+    
+    input("\nPress Enter to continue...")
+
+
+def launch_gui_game():
+    """Launch the GUI version of the Vault Runner game."""
+    try:
+        from gui_game import main as gui_main
+        print("Launching GUI game...")
+        gui_main()
+    except ImportError as e:
+        print(f"Error: PyQt5 is required for the GUI game. {e}")
+        print("Please install PyQt5: pip install PyQt5")
+    except Exception as e:
+        print(f"Error launching GUI: {e}")
         import traceback
         traceback.print_exc()
     

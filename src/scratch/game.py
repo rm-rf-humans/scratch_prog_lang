@@ -11,8 +11,8 @@ This module provides a game interface where players can:
 import random
 import time
 from typing import List, Dict, Tuple, Optional
-from interpreter import VaultInterpreter
-from vault_runner import VaultRunner, create_corridor_world, create_room_world, create_multi_key_world
+from .interpreter import VaultInterpreter
+from .vault_runner import VaultRunner, create_corridor_world, create_room_world, create_multi_key_world
 
 
 class GameChallenge:

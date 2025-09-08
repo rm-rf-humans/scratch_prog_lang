@@ -24,7 +24,9 @@ classifiers = [
     "Topic :: Games/Entertainment",
     "Topic :: Software Development :: Interpreters",
 ]
-dependencies = []
+dependencies = [
+    "PyQt5>=5.15.0",
+]
 
 [project.optional-dependencies]
 dev = [
