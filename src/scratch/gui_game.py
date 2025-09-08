@@ -313,6 +313,27 @@ class VaultRunnerGUI(QMainWindow):
         self.challenge_combo.currentTextChanged.connect(self.on_challenge_changed)
         challenge_layout.addWidget(self.challenge_combo)
         
+        # Special Extension Challenge button
+        self.extension_button = QPushButton("Extension Challenge")
+        self.extension_button.setStyleSheet("""
+            QPushButton {
+                background-color: #ff6b35;
+                color: white;
+                border: none;
+                padding: 8px;
+                border-radius: 4px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #e55a2b;
+            }
+            QPushButton:pressed {
+                background-color: #cc4a1f;
+            }
+        """)
+        self.extension_button.clicked.connect(self.select_extension_challenge)
+        challenge_layout.addWidget(self.extension_button)
+        
         self.challenge_description = QLabel()
         self.challenge_description.setWordWrap(True)
         self.challenge_description.setStyleSheet("padding: 10px; background-color: #1e1e1e; border-radius: 4px;")
@@ -342,6 +363,10 @@ class VaultRunnerGUI(QMainWindow):
         self.clear_button = QPushButton("Clear")
         self.clear_button.clicked.connect(self.clear_program)
         button_layout.addWidget(self.clear_button)
+        
+        self.load_sample_button = QPushButton("Load Sample")
+        self.load_sample_button.clicked.connect(self.load_sample_program)
+        button_layout.addWidget(self.load_sample_button)
         
         editor_layout.addLayout(button_layout)
         layout.addWidget(editor_group)
@@ -404,6 +429,29 @@ class VaultRunnerGUI(QMainWindow):
                 self.challenge_description.setText(f"<b>{challenge.name}</b><br>{challenge.description}")
                 self.update_world_display()
                 break
+    
+    def select_extension_challenge(self):
+        """Select the Extension Challenge and show special info."""
+        # Find and select the Extension Challenge
+        for i in range(self.challenge_combo.count()):
+            if self.challenge_combo.itemText(i) == "Extension Challenge":
+                self.challenge_combo.setCurrentIndex(i)
+                break
+        
+        # Show special message for Extension Challenge
+        self.challenge_description.setText("""
+        <b>Extension Challenge</b><br>
+        <b>Challenge:</b> Solve a map with multiple keys, one door, and one exit. Only one key opens the door. Unknown starting position and direction!<br><br>
+        <b>Features:</b><br>
+        • 4x4 room with 3 keys (only 1 works)<br>
+        • Random starting position and direction<br>
+        • Must find correct key and escape<br>
+        • Maximum 3000 instructions<br><br>
+        <b>Success:</b> Find the correct key and escape through the door
+        """)
+        
+        # Update the world display
+        self.update_world_display()
                 
     def update_world_display(self):
         """Update the world display with current challenge."""
@@ -436,6 +484,200 @@ class VaultRunnerGUI(QMainWindow):
             
         except Exception as e:
             self.analysis_label.setText(f"<b>Analysis Error:</b><br>{str(e)}")
+    
+    def load_sample_program(self):
+        """Load a sample program for the current challenge."""
+        if not self.current_challenge:
+            QMessageBox.warning(self, "No Challenge", "Please select a challenge first.")
+            return
+        
+        # Load different sample programs based on the challenge
+        if self.current_challenge.name == "Extension Challenge":
+            sample_program = """# Extension Challenge - Systematic Exploration Algorithm
+# This program uses a systematic approach to explore the entire room
+
+# Phase 1: Explore all positions systematically
+# Start by orienting north
+LEFT
+LEFT
+LEFT
+LEFT
+
+# Explore row by row, column by column
+# Row 0: Move right across the top
+MOVE
+IF KEY
+  PICK
+  MOVE
+  IF DOOR
+    OPEN
+    MOVE
+  END
+END
+MOVE
+IF KEY
+  PICK
+  MOVE
+  IF DOOR
+    OPEN
+    MOVE
+  END
+END
+MOVE
+IF KEY
+  PICK
+  MOVE
+  IF DOOR
+    OPEN
+    MOVE
+  END
+END
+
+# Turn around and go back
+LEFT
+LEFT
+MOVE
+MOVE
+MOVE
+
+# Turn right to face south
+RIGHT
+
+# Row 1: Move right across second row
+MOVE
+IF KEY
+  PICK
+  MOVE
+  IF DOOR
+    OPEN
+    MOVE
+  END
+END
+MOVE
+IF KEY
+  PICK
+  MOVE
+  IF DOOR
+    OPEN
+    MOVE
+  END
+END
+MOVE
+IF KEY
+  PICK
+  MOVE
+  IF DOOR
+    OPEN
+    MOVE
+  END
+END
+
+# Turn around and go back
+LEFT
+LEFT
+MOVE
+MOVE
+MOVE
+
+# Turn right to face south
+RIGHT
+
+# Row 2: Move right across third row
+MOVE
+IF KEY
+  PICK
+  MOVE
+  IF DOOR
+    OPEN
+    MOVE
+  END
+END
+MOVE
+IF KEY
+  PICK
+  MOVE
+  IF DOOR
+    OPEN
+    MOVE
+  END
+END
+MOVE
+IF KEY
+  PICK
+  MOVE
+  IF DOOR
+    OPEN
+    MOVE
+  END
+END
+
+# Turn around and go back
+LEFT
+LEFT
+MOVE
+MOVE
+MOVE
+
+# Turn right to face south
+RIGHT
+
+# Row 3: Move right across bottom row
+MOVE
+IF KEY
+  PICK
+  MOVE
+  IF DOOR
+    OPEN
+    MOVE
+  END
+END
+MOVE
+IF KEY
+  PICK
+  MOVE
+  IF DOOR
+    OPEN
+    MOVE
+  END
+END
+MOVE
+IF KEY
+  PICK
+  MOVE
+  IF DOOR
+    OPEN
+    MOVE
+  END
+END
+
+# Try to find exit
+MOVE
+IF EXIT
+  MOVE
+END"""
+        elif self.current_challenge.name == "First Steps":
+            sample_program = """# First Steps Sample Program
+# Move forward 3 steps and turn around
+LOOP 3
+  MOVE
+END
+LEFT
+LEFT"""
+        elif self.current_challenge.name == "Key Collector":
+            sample_program = """# Key Collector Sample Program
+# Move to the key and pick it up
+MOVE
+MOVE
+PICK"""
+        else:
+            sample_program = """# Sample Program
+# Basic movement example
+MOVE
+MOVE
+MOVE"""
+        
+        self.program_editor.setPlainText(sample_program)
+        self.update_analysis()
             
     def run_program(self):
         """Run the current program."""

@@ -1,23 +1,33 @@
-# Extension Challenge Example Program
-# This program demonstrates how to solve the extension challenge:
-# - Multiple keys exist, but only one opens the door
-# - Unknown starting position and direction
-# - Must find the correct key and escape
+# Extension Challenge - Systematic Exploration Algorithm
+# This program uses a systematic approach to explore the entire 4x4 room
 
-# Strategy: Explore systematically and try each key
-# 1. Move in a pattern to explore the room
-# 2. When we find a key, pick it up
-# 3. Try to open the door
-# 4. If door doesn't open, continue exploring
-
-# Start by turning to face a known direction (North)
+# Phase 1: Explore all positions systematically
+# Start by orienting north
 LEFT
 LEFT
 LEFT
 LEFT
 
-# Explore the room systematically
-# Move forward and check for key
+# Explore row by row, column by column
+# Row 0: Move right across the top
+MOVE
+IF KEY
+  PICK
+  MOVE
+  IF DOOR
+    OPEN
+    MOVE
+  END
+END
+MOVE
+IF KEY
+  PICK
+  MOVE
+  IF DOOR
+    OPEN
+    MOVE
+  END
+END
 MOVE
 IF KEY
   PICK
@@ -28,8 +38,35 @@ IF KEY
   END
 END
 
-# Turn right and continue exploring
+# Turn around and go back
+LEFT
+LEFT
+MOVE
+MOVE
+MOVE
+
+# Turn right to face south
 RIGHT
+
+# Row 1: Move right across second row
+MOVE
+IF KEY
+  PICK
+  MOVE
+  IF DOOR
+    OPEN
+    MOVE
+  END
+END
+MOVE
+IF KEY
+  PICK
+  MOVE
+  IF DOOR
+    OPEN
+    MOVE
+  END
+END
 MOVE
 IF KEY
   PICK
@@ -40,8 +77,35 @@ IF KEY
   END
 END
 
-# Turn right and continue
+# Turn around and go back
+LEFT
+LEFT
+MOVE
+MOVE
+MOVE
+
+# Turn right to face south
 RIGHT
+
+# Row 2: Move right across third row
+MOVE
+IF KEY
+  PICK
+  MOVE
+  IF DOOR
+    OPEN
+    MOVE
+  END
+END
+MOVE
+IF KEY
+  PICK
+  MOVE
+  IF DOOR
+    OPEN
+    MOVE
+  END
+END
 MOVE
 IF KEY
   PICK
@@ -52,8 +116,35 @@ IF KEY
   END
 END
 
-# Turn right and continue
+# Turn around and go back
+LEFT
+LEFT
+MOVE
+MOVE
+MOVE
+
+# Turn right to face south
 RIGHT
+
+# Row 3: Move right across bottom row
+MOVE
+IF KEY
+  PICK
+  MOVE
+  IF DOOR
+    OPEN
+    MOVE
+  END
+END
+MOVE
+IF KEY
+  PICK
+  MOVE
+  IF DOOR
+    OPEN
+    MOVE
+  END
+END
 MOVE
 IF KEY
   PICK
@@ -64,7 +155,7 @@ IF KEY
   END
 END
 
-# If we haven't escaped yet, try moving to exit
+# Try to find exit
 MOVE
 IF EXIT
   MOVE

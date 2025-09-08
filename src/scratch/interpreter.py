@@ -48,6 +48,12 @@ class VaultInterpreter:
             line = line.strip()
             if not line:
                 continue
+            
+            # Handle comments - ignore everything after #
+            if '#' in line:
+                line = line.split('#')[0].strip()
+                if not line:  # If entire line was a comment, skip it
+                    continue
                 
             parts = line.split()
             
