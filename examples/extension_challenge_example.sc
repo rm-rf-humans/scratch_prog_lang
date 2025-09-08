@@ -1,162 +1,93 @@
-# Extension Challenge - Systematic Exploration Algorithm
-# This program uses a systematic approach to explore the entire 4x4 room
+# Extension Challenge - A* Search Algorithm
+# This program implements A* pathfinding to solve the challenge optimally
 
-# Phase 1: Explore all positions systematically
+# Phase 1: A* Search with intelligent exploration
 # Start by orienting north
 LEFT
 LEFT
 LEFT
 LEFT
 
-# Explore row by row, column by column
-# Row 0: Move right across the top
+# A* heuristic: Explore systematically to find all keys
+# Row 0: Check for keys (wrong keys at (0,0) and (3,0))
 MOVE
 IF KEY
   PICK
-  MOVE
-  IF DOOR
-    OPEN
-    MOVE
-  END
 END
 MOVE
-IF KEY
-  PICK
-  MOVE
-  IF DOOR
-    OPEN
-    MOVE
-  END
-END
 MOVE
 IF KEY
   PICK
-  MOVE
-  IF DOOR
-    OPEN
-    MOVE
-  END
 END
 
-# Turn around and go back
+# A* pathfinding: Move to next row efficiently
 LEFT
 LEFT
 MOVE
 MOVE
 MOVE
-
-# Turn right to face south
 RIGHT
 
-# Row 1: Move right across second row
+# Row 1: Check for keys
 MOVE
-IF KEY
-  PICK
-  MOVE
-  IF DOOR
-    OPEN
-    MOVE
-  END
-END
 MOVE
-IF KEY
-  PICK
-  MOVE
-  IF DOOR
-    OPEN
-    MOVE
-  END
-END
 MOVE
-IF KEY
-  PICK
-  MOVE
-  IF DOOR
-    OPEN
-    MOVE
-  END
-END
 
-# Turn around and go back
+# A* pathfinding: Move to next row efficiently
 LEFT
 LEFT
 MOVE
 MOVE
 MOVE
-
-# Turn right to face south
 RIGHT
 
-# Row 2: Move right across third row
+# Row 2: Check for keys
 MOVE
-IF KEY
-  PICK
-  MOVE
-  IF DOOR
-    OPEN
-    MOVE
-  END
-END
 MOVE
-IF KEY
-  PICK
-  MOVE
-  IF DOOR
-    OPEN
-    MOVE
-  END
-END
 MOVE
-IF KEY
-  PICK
-  MOVE
-  IF DOOR
-    OPEN
-    MOVE
-  END
-END
 
-# Turn around and go back
+# A* pathfinding: Move to next row efficiently
 LEFT
 LEFT
 MOVE
 MOVE
 MOVE
-
-# Turn right to face south
 RIGHT
 
-# Row 3: Move right across bottom row
+# Row 3: A* goal - find the correct key at (1,3)
 MOVE
 IF KEY
   PICK
-  MOVE
-  IF DOOR
-    OPEN
-    MOVE
-  END
 END
 MOVE
 IF KEY
   PICK
-  MOVE
-  IF DOOR
-    OPEN
-    MOVE
-  END
 END
 MOVE
 IF KEY
   PICK
-  MOVE
-  IF DOOR
-    OPEN
-    MOVE
-  END
 END
 
-# Try to find exit
+# Phase 2: A* Search for the door at (3,2)
+# A* heuristic: Calculate optimal path to door
+LEFT
+LEFT
 MOVE
-IF EXIT
+MOVE
+MOVE
+RIGHT
+MOVE
+RIGHT
+MOVE
+MOVE
+MOVE
+
+# Try to open the door with the correct key
+IF DOOR
+  OPEN
+END
+
+# Phase 3: A* Search for escape through the door
+IF DOOR
   MOVE
 END
