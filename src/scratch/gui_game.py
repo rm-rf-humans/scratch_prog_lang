@@ -16,9 +16,14 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
 from PyQt5.QtCore import Qt, QTimer, QThread, pyqtSignal, QRect
 from PyQt5.QtGui import QFont, QColor, QPalette, QPainter, QPen, QBrush, QPixmap
 
-from .interpreter import VaultInterpreter
-from .vault_runner import VaultRunner, create_corridor_world, create_room_world, create_multi_key_world
-from .game import VaultRunnerGame, GameChallenge
+try:
+    from .interpreter import VaultInterpreter
+    from .vault_runner import VaultRunner, create_corridor_world, create_room_world, create_multi_key_world
+    from .game import VaultRunnerGame, GameChallenge
+except ImportError:
+    from interpreter import VaultInterpreter
+    from vault_runner import VaultRunner, create_corridor_world, create_room_world, create_multi_key_world
+    from game import VaultRunnerGame, GameChallenge
 
 
 class WorldDisplayWidget(QWidget):
@@ -289,6 +294,9 @@ class VaultRunnerGUI(QMainWindow):
         # Set splitter proportions
         splitter.setSizes([600, 600])
         
+        # Set initial challenge after both panels are created
+        self.on_challenge_changed(self.challenge_combo.currentText())
+        
     def create_left_panel(self) -> QWidget:
         """Create the left panel with program editor and controls."""
         panel = QWidget()
@@ -350,9 +358,6 @@ class VaultRunnerGUI(QMainWindow):
         
         # Update analysis when program changes
         self.program_editor.textChanged.connect(self.update_analysis)
-        
-        # Set initial challenge
-        self.on_challenge_changed(self.challenge_combo.currentText())
         
         return panel
         

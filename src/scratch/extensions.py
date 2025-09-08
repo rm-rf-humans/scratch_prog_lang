@@ -9,8 +9,12 @@ compatibility with the core language constraints.
 import random
 import time
 from typing import List, Dict, Any, Optional
-from .interpreter import VaultInterpreter
-from .vault_runner import VaultRunner
+try:
+    from .interpreter import VaultInterpreter
+    from .vault_runner import VaultRunner
+except ImportError:
+    from interpreter import VaultInterpreter
+    from vault_runner import VaultRunner
 
 
 class ExtendedVaultInterpreter(VaultInterpreter):
