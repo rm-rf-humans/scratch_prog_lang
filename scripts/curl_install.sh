@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # One-liner installation for Vault Runner Language Extension
-# Usage: curl -fsSL https://raw.githubusercontent.com/rm-rf-humans/scratch_prog_lang/main/install.sh | bashte 
+# Usage: curl -fsSL https://raw.githubusercontent.com/rm-rf-humans/scratch_prog_lang/main/scripts/install.sh | bash 
 
 echo " Vault Runner Language Extension - Quick Install "
 echo "====================================================="
@@ -14,7 +14,7 @@ echo "• Try language extensions"
 echo ""
 
 # Download and run the main installer
-curl -fsSL https://raw.githubusercontent.com/rm-rf-humans/scratch_prog_lang/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/rm-rf-humans/scratch_prog_lang/main/scripts/install.sh | bash
 
 echo ""
 echo " Installation complete!"

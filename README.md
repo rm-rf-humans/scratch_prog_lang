@@ -11,11 +11,17 @@ A simple programming language for controlling a robot in a 2D vault environment.
 - **Visual Simulation**: Real-time robot movement visualization
 - **Comprehensive Testing**: Full test suite with benchmarks
 
-## 📦 Installation
+## Installation
 
+### One-Line Installation
+```bash
+curl -fsSL https://raw.githubusercontent.com/rm-rf-humans/scratch_prog_lang/main/scripts/install.sh | bash
+```
+
+### Manual Installation
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/scratch_prog_lang.git
+git clone https://github.com/rm-rf-humans/scratch_prog_lang.git
 
 # Install in development mode
 cd scratch_prog_lang
@@ -181,7 +187,19 @@ scratch_prog_lang/
 │       ├── vault_runner.py      # Robot simulation engine
 │       ├── programs.py          # Example programs
 │       ├── game.py              # Interactive game
-│       └── extensions.py        # Language extensions
+│       ├── extensions.py        # Language extensions
+│       └── gui_game.py          # GUI version
+├── examples/                    # Example programs and demos
+│   ├── example.sc              # Basic example
+│   ├── advanced_example.sc     # Extended features
+│   ├── extension_challenge_example.sc # Challenge solution
+│   ├── first_steps_complete.sc # Tutorial solution
+│   ├── loop_move_example.sc    # Loop demonstration
+│   ├── demo.py                 # Interactive demo
+│   └── launch_gui.py           # GUI launcher
+├── scripts/                     # Installation scripts
+│   ├── install.sh              # Full installation
+│   └── curl_install.sh         # One-line installer
 ├── tests/
 │   └── test.py                  # Comprehensive test suite
 ├── docs/                        # Documentation
