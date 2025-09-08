@@ -6,6 +6,8 @@ sys.path.insert(0, os.path.dirname(__file__))
 from vault_runner import VaultRunner, create_corridor_world, create_room_world, create_multi_key_world
 from interpreter import VaultInterpreter
 from programs import program1_corridor, program2_room, program3_multikey, print_program_analysis
+from game import VaultRunnerGame
+from extensions import ExtendedVaultInterpreter, AdvancedVaultRunner, LanguageExtensions
 
 
 def interactive_demo():
@@ -22,9 +24,11 @@ def interactive_demo():
         print("4. Run Program 3 (Multi-key Challenge) [Optional]")
         print("5. Custom program input")
         print("6. Show world visualizations only")
-        print("7. Exit")
+        print("7. Play the Vault Runner Game")
+        print("8. Try Language Extensions")
+        print("9. Exit")
         
-        choice = input("\nEnter your choice (1-7): ").strip()
+        choice = input("\nEnter your choice (1-9): ").strip()
         
         if choice == '1':
             print_program_analysis()
@@ -45,6 +49,13 @@ def interactive_demo():
             show_world_visualizations()
             
         elif choice == '7':
+            game = VaultRunnerGame()
+            game.start_game()
+            
+        elif choice == '8':
+            demo_extensions()
+            
+        elif choice == '9':
             print("Goodbye!")
             break
             
@@ -324,6 +335,70 @@ def batch_demo():
     print(f"Program 1 (Corridor): {'SUCCESS' if result1 else 'FAILED'}")
     print(f"Program 2 (Room): {'SUCCESS' if result2 else 'COMPLETED'}")
     print("\nAll demonstrations completed!")
+
+
+def demo_extensions():
+    """Demonstrate language extensions."""
+    print("\n" + "=" * 60)
+    print("LANGUAGE EXTENSIONS DEMO")
+    print("=" * 60)
+    
+    print("Available extended commands:")
+    print("  WAIT <n>    - Pause execution for n steps")
+    print("  MARK        - Mark current position")
+    print("  GOTO        - Move to marked position")
+    print("  SCAN        - Check all directions")
+    print("  COUNT       - Count items in area")
+    print("  SAVE        - Save current state")
+    print("  LOAD        - Restore saved state")
+    
+    print("\nSample extended program:")
+    sample_program = [
+        "MARK",
+        "MOVE",
+        "MOVE",
+        "IF KEY",
+        "  PICK",
+        "END",
+        "GOTO",
+        "IF DOOR",
+        "  OPEN",
+        "END"
+    ]
+    
+    for i, line in enumerate(sample_program, 1):
+        print(f"{i:2d}: {line}")
+    
+    print("\nTesting extended program...")
+    
+    try:
+        # Create extended world
+        world = LanguageExtensions.create_extended_world(6)
+        runner = AdvancedVaultRunner(world, (0, 0), 1, enable_extensions=True)
+        
+        print("Extended world:")
+        runner.display_world()
+        
+        # Test with extended interpreter
+        interpreter = ExtendedVaultInterpreter(sample_program, enable_extensions=True)
+        result = interpreter.run(runner, show_steps=True)
+        
+        print(f"\nResult: {'SUCCESS' if result else 'COMPLETED'}")
+        
+        # Show analysis
+        analysis = LanguageExtensions.analyze_program_complexity(sample_program)
+        print(f"Program analysis:")
+        print(f"  Has extensions: {analysis.get('has_extensions', False)}")
+        print(f"  Extension count: {analysis.get('extension_count', 0)}")
+        print(f"  Total tokens: {analysis.get('total_tokens', 0)}")
+        print(f"  Distinct tokens: {analysis.get('distinct_tokens', 0)}")
+        
+    except Exception as e:
+        print(f"Error: {e}")
+        import traceback
+        traceback.print_exc()
+    
+    input("\nPress Enter to continue...")
 
 
 def main():
