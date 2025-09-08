@@ -166,33 +166,34 @@ class ExecutionThread(QThread):
             
             start_time = time.time()
             
-            # Execute step by step
-            while interpreter.pc < len(interpreter.tokens) and not runner.escaped and not self.should_stop:
-                if interpreter.instruction_count >= interpreter.max_instructions:
-                    break
-                    
-                # Execute one instruction
-                token = interpreter.tokens[interpreter.pc]
-                interpreter._execute_instruction(token, show_steps=False)
-                interpreter.pc += 1
-                interpreter.instruction_count += 1
-                
-                # Emit step update
+            # Use the interpreter's built-in run method for correct execution
+            # but emit step updates by overriding the display method
+            original_display = runner.display_world
+            
+            def step_display():
+                """Override display to emit step updates."""
                 self.step_update.emit({
                     'world': world,
                     'runner': runner,
                     'pc': interpreter.pc,
                     'instruction_count': interpreter.instruction_count,
-                    'token': str(token)
+                    'token': 'STEP'
                 })
-                
-                # Small delay for visualization
-                self.msleep(100)
-                
+                self.msleep(100)  # Small delay for visualization
+            
+            # Temporarily override display method
+            runner.display_world = step_display
+            
+            # Execute the program
+            result = interpreter.run(runner, show_steps=True)
+            
+            # Restore original display method
+            runner.display_world = original_display
+            
             end_time = time.time()
             
             self.finished.emit({
-                'success': runner.escaped,
+                'success': result,
                 'world': world,
                 'runner': runner,
                 'instruction_count': interpreter.instruction_count,
@@ -406,7 +407,7 @@ class VaultRunnerGUI(QMainWindow):
                 
     def update_world_display(self):
         """Update the world display with current challenge."""
-        if self.current_challenge:
+        if self.current_challenge and hasattr(self, 'world_display'):
             world = self.current_challenge.world_creator()
             runner = VaultRunner(world, self.current_challenge.start_pos, self.current_challenge.start_dir)
             self.world_display.update_world(world, runner)
@@ -481,8 +482,9 @@ class VaultRunnerGUI(QMainWindow):
         
     def on_step_update(self, data: dict):
         """Handle step update from execution thread."""
-        self.world_display.update_world(data['world'], data['runner'])
-        self.status_label.setText(f"Step {data['instruction_count']}: {data['token']}")
+        if data.get('world') and data.get('runner'):
+            self.world_display.update_world(data['world'], data['runner'])
+        self.status_label.setText(f"Step {data.get('instruction_count', 0)}: {data.get('token', 'Unknown')}")
         
     def on_execution_finished(self, result: dict):
         """Handle execution completion."""
@@ -498,7 +500,8 @@ class VaultRunnerGUI(QMainWindow):
             success = result['success']
             self.status_label.setText("Execution completed")
             
-            results_text = f"""
+            if result['runner']:
+                results_text = f"""
 <b>Execution Results:</b><br>
 • Success: {'Yes' if success else 'No'}<br>
 • Instructions executed: {result['instruction_count']}<br>
@@ -506,7 +509,17 @@ class VaultRunnerGUI(QMainWindow):
 • Final position: ({result['runner'].x}, {result['runner'].y})<br>
 • Has key: {'Yes' if result['runner'].has_key else 'No'}<br>
 • Door opened: {'Yes' if result['runner'].door_opened else 'No'}
-            """.strip()
+                """.strip()
+            else:
+                results_text = f"""
+<b>Execution Results:</b><br>
+• Success: {'Yes' if success else 'No'}<br>
+• Instructions executed: {result['instruction_count']}<br>
+• Execution time: {result['execution_time']:.2f}s<br>
+• Final position: N/A<br>
+• Has key: N/A<br>
+• Door opened: N/A
+                """.strip()
             
             self.results_label.setText(results_text)
             
