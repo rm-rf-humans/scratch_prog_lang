@@ -24,7 +24,7 @@ from game import VaultRunnerGame
 def demo_core_language():
     """Demonstrate core language features."""
     print("=" * 60)
-    print("🏗️  CORE LANGUAGE DEMO")
+    print("  CORE LANGUAGE DEMO")
     print("=" * 60)
     
     # Simple program
@@ -66,7 +66,7 @@ def demo_core_language():
 def demo_extensions():
     """Demonstrate language extensions."""
     print("\n" + "=" * 60)
-    print("🔧 LANGUAGE EXTENSIONS DEMO")
+    print(" LANGUAGE EXTENSIONS DEMO")
     print("=" * 60)
     
     # Extended program
@@ -112,7 +112,7 @@ def demo_extensions():
 def demo_game_features():
     """Demonstrate game features."""
     print("\n" + "=" * 60)
-    print("🎮 GAME FEATURES DEMO")
+    print(" GAME FEATURES DEMO")
     print("=" * 60)
     
     # Create a game instance
@@ -120,7 +120,7 @@ def demo_game_features():
     
     print("Available Challenges:")
     for i, challenge in enumerate(game.challenges, 1):
-        status = "✅" if challenge.best_score else "⭕"
+        status = "" if challenge.best_score else "⭕"
         print(f"  {i}. {status} {challenge.name}")
         print(f"     {challenge.description}")
     
@@ -129,7 +129,7 @@ def demo_game_features():
     test_program = ["MOVE", "MOVE", "MOVE"]
     
     result = game.challenges[0].test_program(test_program)
-    print(f"  Success: {'✅' if result['success'] else '❌'}")
+    print(f"  Success: {'' if result['success'] else ''}")
     print(f"  Score: {result['score']}")
     print(f"  Instructions: {result['instructions']}")
 
@@ -137,7 +137,7 @@ def demo_game_features():
 def demo_sample_programs():
     """Demonstrate sample programs."""
     print("\n" + "=" * 60)
-    print("📝 SAMPLE PROGRAMS DEMO")
+    print(" SAMPLE PROGRAMS DEMO")
     print("=" * 60)
     
     # Get sample programs
@@ -156,7 +156,7 @@ def demo_sample_programs():
 
 def main():
     """Run all demonstrations."""
-    print("🏰 VAULT RUNNER PROGRAMMING LANGUAGE - FEATURE DEMO 🏰")
+    print(" VAULT RUNNER PROGRAMMING LANGUAGE - FEATURE DEMO ")
     print("=" * 70)
     print("This demo showcases all the features of the Vault Runner language:")
     print("• Core programming language with constraints")
@@ -172,7 +172,7 @@ def main():
         demo_sample_programs()
         
         print("\n" + "=" * 60)
-        print("🎉 DEMO COMPLETED SUCCESSFULLY!")
+        print(" DEMO COMPLETED SUCCESSFULLY!")
         print("=" * 60)
         print("\nTo explore more features:")
         print("• Run 'python3 -m scratch' for interactive mode")
@@ -181,7 +181,7 @@ def main():
         print("• Run tests: 'python3 -m unittest tests/test.py'")
         
     except Exception as e:
-        print(f"\n❌ Demo failed with error: {e}")
+        print(f"\n Demo failed with error: {e}")
         import traceback
         traceback.print_exc()
 

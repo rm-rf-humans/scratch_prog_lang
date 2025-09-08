@@ -5,7 +5,7 @@
 
 set -e
 
-echo "🏰 Vault Runner Language Extension Installer 🏰"
+echo "Vault Runner Language Extension Installer"
 echo "=============================================="
 
 # Colors for output
@@ -17,18 +17,18 @@ NC='\033[0m' # No Color
 
 # Check if Python 3 is installed
 if ! command -v python3 &> /dev/null; then
-    echo -e "${RED}❌ Python 3 is required but not installed.${NC}"
+    echo -e "${RED}ERROR: Python 3 is required but not installed.${NC}"
     echo "Please install Python 3 and try again."
     exit 1
 fi
 
-echo -e "${GREEN}✅ Python 3 found: $(python3 --version)${NC}"
+echo -e "${GREEN}Python 3 found: $(python3 --version)${NC}"
 
 # Create installation directory
 INSTALL_DIR="$HOME/.vault-runner"
 BIN_DIR="$HOME/.local/bin"
 
-echo -e "${BLUE}📁 Creating installation directory: $INSTALL_DIR${NC}"
+echo -e "${BLUE} Creating installation directory: $INSTALL_DIR${NC}"
 mkdir -p "$INSTALL_DIR"
 mkdir -p "$BIN_DIR"
 
@@ -37,19 +37,19 @@ echo -e "${BLUE}📦 Installing Vault Runner language extension...${NC}"
 
 # Copy the source files to installation directory
 if [ -d "src/scratch" ]; then
-    echo -e "${BLUE}📋 Copying source files...${NC}"
+    echo -e "${BLUE} Copying source files...${NC}"
     cp -r src/scratch "$INSTALL_DIR/"
     cp -r tests "$INSTALL_DIR/"
     cp pyproject.toml "$INSTALL_DIR/"
     cp README.md "$INSTALL_DIR/"
     cp demo.py "$INSTALL_DIR/"
 else
-    echo -e "${RED}❌ Source files not found. Please run this script from the Vault Runner project directory.${NC}"
+    echo -e "${RED} Source files not found. Please run this script from the Vault Runner project directory.${NC}"
     exit 1
 fi
 
 # Create the vault-runner executable
-echo -e "${BLUE}🔧 Creating vault-runner executable...${NC}"
+echo -e "${BLUE} Creating vault-runner executable...${NC}"
 cat > "$BIN_DIR/vault-runner" << 'EOF'
 #!/usr/bin/env python3
 """
@@ -73,7 +73,7 @@ try:
     from extensions import ExtendedVaultInterpreter, LanguageExtensions
     from game import VaultRunnerGame
 except ImportError as e:
-    print(f"❌ Error importing Vault Runner modules: {e}")
+    print(f" Error importing Vault Runner modules: {e}")
     print("Please ensure Vault Runner is properly installed.")
     sys.exit(1)
 
@@ -146,7 +146,7 @@ def main():
     else:
         # Default: show help
         parser.print_help()
-        print("\n🎮 Quick Start:")
+        print("\n Quick Start:")
         print("  vault-runner -i          # Interactive mode")
         print("  vault-runner -g          # Play the game")
         print("  vault-runner -e          # Try extensions")
@@ -156,14 +156,14 @@ def main():
 def execute_sc_file(filename, verbose=False):
     """Execute a .sc file."""
     if not filename.endswith('.sc'):
-        print(f"❌ Error: File must have .sc extension")
+        print(f" Error: File must have .sc extension")
         sys.exit(1)
     
     if not os.path.exists(filename):
-        print(f"❌ Error: File '{filename}' not found")
+        print(f" Error: File '{filename}' not found")
         sys.exit(1)
     
-    print(f"🏰 Executing Vault Runner program: {filename}")
+    print(f" Executing Vault Runner program: {filename}")
     print("=" * 50)
     
     try:
@@ -172,7 +172,7 @@ def execute_sc_file(filename, verbose=False):
             program_lines = [line.strip() for line in f.readlines() if line.strip()]
         
         if not program_lines:
-            print("❌ Error: Program file is empty")
+            print(" Error: Program file is empty")
             sys.exit(1)
         
         # Check if program uses extensions
@@ -182,14 +182,14 @@ def execute_sc_file(filename, verbose=False):
         
         # Create interpreter
         if uses_extensions:
-            print("🔧 Using extended interpreter (extensions detected)")
+            print(" Using extended interpreter (extensions detected)")
             interpreter = ExtendedVaultInterpreter(program_lines, enable_extensions=True)
         else:
             interpreter = VaultInterpreter(program_lines)
         
         # Analyze program
         analysis = interpreter.analyze_program()
-        print(f"📊 Program Analysis:")
+        print(f" Program Analysis:")
         print(f"   Total tokens: {analysis['total_tokens']}")
         print(f"   Distinct tokens: {analysis['distinct_tokens']}/20")
         print(f"   Control structures: {analysis['control_structures']}")
@@ -201,26 +201,26 @@ def execute_sc_file(filename, verbose=False):
         world = create_room_world()  # Default world
         runner = VaultRunner(world, (0, 0), 1)  # Start facing East
         
-        print(f"\n🌍 Initial world state:")
+        print(f"\n Initial world state:")
         runner.display_world()
         
         # Execute program
-        print(f"\n🚀 Executing program...")
+        print(f"\n Executing program...")
         result = interpreter.run(runner, show_steps=verbose)
         
-        print(f"\n📋 Results:")
-        print(f"   Success: {'✅ YES' if result else '❌ NO'}")
+        print(f"\n Results:")
+        print(f"   Success: {' YES' if result else ' NO'}")
         print(f"   Instructions executed: {interpreter.instruction_count}")
         print(f"   Final position: ({runner.x}, {runner.y})")
         print(f"   Has key: {runner.has_key}")
         print(f"   Door opened: {runner.door_opened}")
         
         if verbose:
-            print(f"\n🌍 Final world state:")
+            print(f"\n Final world state:")
             runner.display_world()
         
     except Exception as e:
-        print(f"❌ Error executing program: {e}")
+        print(f" Error executing program: {e}")
         if verbose:
             import traceback
             traceback.print_exc()
@@ -234,7 +234,7 @@ EOF
 chmod +x "$BIN_DIR/vault-runner"
 
 # Create a simple .sc file template
-echo -e "${BLUE}📝 Creating example .sc file...${NC}"
+echo -e "${BLUE} Creating example .sc file...${NC}"
 cat > "$INSTALL_DIR/example.sc" << 'EOF'
 # Vault Runner Program Example
 # This is a simple program that moves forward and picks up a key
@@ -250,7 +250,7 @@ EOF
 
 # Add to PATH if not already there
 if [[ ":$PATH:" != *":$BIN_DIR:"* ]]; then
-    echo -e "${YELLOW}⚠️  Adding $BIN_DIR to PATH...${NC}"
+    echo -e "${YELLOW}  Adding $BIN_DIR to PATH...${NC}"
     
     # Detect shell and add to appropriate profile
     if [ -n "$ZSH_VERSION" ]; then
@@ -265,20 +265,20 @@ if [[ ":$PATH:" != *":$BIN_DIR:"* ]]; then
     echo "# Vault Runner Language Extension" >> "$SHELL_RC"
     echo "export PATH=\"\$PATH:$BIN_DIR\"" >> "$SHELL_RC"
     
-    echo -e "${YELLOW}📝 Added to $SHELL_RC${NC}"
+    echo -e "${YELLOW} Added to $SHELL_RC${NC}"
     echo -e "${YELLOW}   Please run: source $SHELL_RC${NC}"
     echo -e "${YELLOW}   Or restart your terminal${NC}"
 fi
 
 echo ""
-echo -e "${GREEN}🎉 Installation completed successfully!${NC}"
+echo -e "${GREEN} Installation completed successfully!${NC}"
 echo ""
-echo -e "${BLUE}📋 What's installed:${NC}"
+echo -e "${BLUE} What's installed:${NC}"
 echo "   • vault-runner command in $BIN_DIR"
 echo "   • Vault Runner source files in $INSTALL_DIR"
 echo "   • Example program: $INSTALL_DIR/example.sc"
 echo ""
-echo -e "${BLUE}🚀 Usage examples:${NC}"
+echo -e "${BLUE} Usage examples:${NC}"
 echo "   vault-runner -i                    # Interactive mode"
 echo "   vault-runner -g                    # Play the game"
 echo "   vault-runner -e                    # Try extensions"
@@ -286,8 +286,8 @@ echo "   vault-runner -d                    # Run demo"
 echo "   vault-runner example.sc            # Execute .sc file"
 echo "   vault-runner my_program.sc -v      # Execute with verbose output"
 echo ""
-echo -e "${BLUE}📝 Create your first program:${NC}"
+echo -e "${BLUE} Create your first program:${NC}"
 echo "   echo 'MOVE' > hello.sc"
 echo "   vault-runner hello.sc"
 echo ""
-echo -e "${GREEN}Happy programming with Vault Runner! 🏰${NC}"
+echo -e "${GREEN}Happy programming with Vault Runner! ${NC}"

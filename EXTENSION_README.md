@@ -2,13 +2,13 @@
 
 Transform Vault Runner into a command-line programming language that works just like Python!
 
-## 🚀 Quick Install
+##  Quick Install
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/rm-rf-humans/scratch_prog_lang/main/install.sh | bash
 ```
 
-## 📝 Usage
+##  Usage
 
 ### Execute .sc files directly:
 ```bash
@@ -24,7 +24,7 @@ vault-runner -e    # Try extensions
 vault-runner -d    # Run demo
 ```
 
-## 🏗️ Writing Programs
+##  Writing Programs
 
 Create a `.sc` file with your Vault Runner program:
 
@@ -44,7 +44,7 @@ Then execute it:
 vault-runner hello.sc
 ```
 
-## 🔧 Available Commands
+##  Available Commands
 
 ### Core Commands
 - `MOVE` - Move forward
@@ -75,7 +75,7 @@ vault-runner hello.sc
 - `SAVE` - Save state
 - `LOAD` - Load state
 
-## 📁 File Structure
+##  File Structure
 
 After installation:
 ```
@@ -89,7 +89,7 @@ After installation:
 └── vault-runner      # Executable command
 ```
 
-## 🎯 Examples
+##  Examples
 
 ### Basic Movement
 ```sc
@@ -127,21 +127,21 @@ IF DOOR
 END
 ```
 
-## 🎮 Game Integration
+##  Game Integration
 
 The extension includes the full Vault Runner game:
 ```bash
 vault-runner -g
 ```
 
-## 🧪 Testing
+##  Testing
 
 Run the test suite:
 ```bash
 vault-runner -d  # Demo includes testing
 ```
 
-## 🔍 Program Analysis
+##  Program Analysis
 
 Every program execution includes:
 - Token count and distinct token usage
@@ -149,14 +149,14 @@ Every program execution includes:
 - Complexity scoring
 - Extension usage (if applicable)
 
-## 🚀 Advanced Features
+##  Advanced Features
 
 - **Auto-detection**: Automatically uses extended interpreter if extensions are detected
 - **Verbose mode**: `-v` flag shows step-by-step execution
 - **Multiple modes**: Interactive, game, extensions, demo
 - **Error handling**: Clear error messages and debugging info
 
-## 📖 Language Reference
+##  Language Reference
 
 ### Syntax Rules
 1. One command per line
@@ -209,11 +209,11 @@ The extension is built on the core Vault Runner language with:
 - Interactive game with challenges
 - Comprehensive testing and analysis
 
-## 📄 License
+##  License
 
 MIT License - see LICENSE file for details.
 
-## 🤝 Contributing
+##  Contributing
 
 1. Fork the repository
 2. Create your feature branch
@@ -223,4 +223,4 @@ MIT License - see LICENSE file for details.
 
 ---
 
-**Happy programming with Vault Runner! 🏰**
+**Happy programming with Vault Runner! **

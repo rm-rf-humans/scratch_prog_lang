@@ -2,7 +2,7 @@
 
 # Test script for Vault Runner Language Extension
 
-echo "🧪 Testing Vault Runner Language Extension"
+echo " Testing Vault Runner Language Extension"
 echo "=========================================="
 
 # Test 1: Basic .sc file execution
@@ -24,7 +24,7 @@ runner = VaultRunner(world, (0, 0), 1)
 interpreter = VaultInterpreter(program_lines)
 result = interpreter.run(runner, show_steps=False)
 
-print(f'✅ Basic test: {\"PASS\" if interpreter.instruction_count == 2 else \"FAIL\"}')
+print(f' Basic test: {\"PASS\" if interpreter.instruction_count == 2 else \"FAIL\"}')
 "
 
 # Test 2: Extended .sc file execution
@@ -47,7 +47,7 @@ runner = VaultRunner(world, (0, 0), 1)
 interpreter = ExtendedVaultInterpreter(program_lines, enable_extensions=True)
 result = interpreter.run(runner, show_steps=False)
 
-print(f'✅ Extended test: {\"PASS\" if interpreter.instruction_count > 0 else \"FAIL\"}')
+print(f' Extended test: {\"PASS\" if interpreter.instruction_count > 0 else \"FAIL\"}')
 "
 
 # Test 3: Program analysis
@@ -61,12 +61,12 @@ program = ['MOVE', 'MOVE', 'IF KEY', 'PICK', 'END']
 interpreter = VaultInterpreter(program)
 analysis = interpreter.analyze_program()
 
-print(f'✅ Analysis test: {\"PASS\" if analysis[\"total_tokens\"] == 6 else \"FAIL\"}')
+print(f' Analysis test: {\"PASS\" if analysis[\"total_tokens\"] == 6 else \"FAIL\"}')
 print(f'   Tokens: {analysis[\"total_tokens\"]}, Distinct: {analysis[\"distinct_tokens\"]}')
 "
 
 # Cleanup
 rm -f test_basic.sc test_extended.sc
 
-echo -e "\n🎉 All tests completed!"
+echo -e "\n All tests completed!"
 echo "The Vault Runner Language Extension is ready to use!"

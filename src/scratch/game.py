@@ -187,7 +187,7 @@ class VaultRunnerGame:
     def start_game(self):
         """Start the interactive game."""
         print("=" * 70)
-        print("🏰 VAULT RUNNER PROGRAMMING GAME 🏰")
+        print(" VAULT RUNNER PROGRAMMING GAME ")
         print("=" * 70)
         print("Welcome to the Vault Runner programming game!")
         print("Write programs to control a robot and solve challenges.")
@@ -202,7 +202,7 @@ class VaultRunnerGame:
     def _show_tutorial(self):
         """Show the game tutorial."""
         print("\n" + "=" * 50)
-        print("📚 TUTORIAL")
+        print(" TUTORIAL")
         print("=" * 50)
         print("Available commands:")
         print("  Movement: MOVE, LEFT, RIGHT, RTURN")
@@ -224,7 +224,7 @@ class VaultRunnerGame:
         """Show the main game menu."""
         while True:
             print("\n" + "=" * 50)
-            print("🎮 MAIN MENU")
+            print(" MAIN MENU")
             print("=" * 50)
             print("1. View Challenges")
             print("2. Play Challenge")
@@ -255,7 +255,7 @@ class VaultRunnerGame:
         print("=" * 50)
         
         for i, challenge in enumerate(self.challenges, 1):
-            status = "✅" if challenge.best_score else "⭕"
+            status = "" if challenge.best_score else "⭕"
             print(f"{i}. {status} {challenge.name}")
             print(f"   {challenge.description}")
             if challenge.best_score:
@@ -265,11 +265,11 @@ class VaultRunnerGame:
     def _play_challenge(self):
         """Play a selected challenge."""
         print("\n" + "=" * 50)
-        print("🎯 SELECT CHALLENGE")
+        print(" SELECT CHALLENGE")
         print("=" * 50)
         
         for i, challenge in enumerate(self.challenges, 1):
-            status = "✅" if challenge.best_score else "⭕"
+            status = "" if challenge.best_score else "⭕"
             print(f"{i}. {status} {challenge.name}")
         
         try:
@@ -287,7 +287,7 @@ class VaultRunnerGame:
         challenge = self.current_challenge
         
         print(f"\n" + "=" * 50)
-        print(f"🎯 CHALLENGE: {challenge.name}")
+        print(f" CHALLENGE: {challenge.name}")
         print("=" * 50)
         print(f"Description: {challenge.description}")
         print(f"Success Condition: {challenge.success_condition}")
@@ -316,16 +316,16 @@ class VaultRunnerGame:
         
         # Test the program
         print("\n" + "=" * 30)
-        print("🧪 TESTING PROGRAM")
+        print(" TESTING PROGRAM")
         print("=" * 30)
         
         result = challenge.test_program(program_lines)
         
         if 'error' in result:
-            print(f"❌ Program Error: {result['error']}")
+            print(f" Program Error: {result['error']}")
             return
         
-        print(f"Success: {'✅ YES' if result['success'] else '❌ NO'}")
+        print(f"Success: {' YES' if result['success'] else ' NO'}")
         print(f"Score: {result['score']}")
         print(f"Instructions Used: {result['instructions']}")
         print(f"Execution Time: {result['time']:.3f}s")
@@ -346,7 +346,7 @@ class VaultRunnerGame:
         if result['score'] > (challenge.best_score or 0):
             challenge.best_score = result['score']
             challenge.best_program = program_lines.copy()
-            print(f"\n🎉 NEW BEST SCORE: {result['score']}!")
+            print(f"\n NEW BEST SCORE: {result['score']}!")
         
         # Record score
         self.score_history.append({
@@ -383,7 +383,7 @@ class VaultRunnerGame:
     def _practice_mode(self):
         """Practice mode for testing programs."""
         print("\n" + "=" * 50)
-        print("🔧 PRACTICE MODE")
+        print(" PRACTICE MODE")
         print("=" * 50)
         print("Test your programs in different worlds without scoring.")
         

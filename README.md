@@ -2,7 +2,7 @@
 
 A simple programming language for controlling a robot in a 2D vault environment. The robot can navigate through corridors and rooms, pick up keys, open doors, and find exits. This project includes an interactive game, language extensions, and comprehensive testing.
 
-## 🚀 Features
+##  Features
 
 - **Core Language**: Simple, constraint-based programming language (max 20 distinct tokens)
 - **Interactive Game**: Play challenges and learn programming concepts
@@ -21,7 +21,7 @@ cd scratch_prog_lang
 pip install -e .
 ```
 
-## 🎮 Quick Start
+##  Quick Start
 
 ### Run the Interactive Demo
 ```bash
@@ -40,7 +40,7 @@ python -m scratch
 # Select option 8: Try Language Extensions
 ```
 
-## 📚 Language Features
+##  Language Features
 
 ### Core Commands
 - **Movement**: `MOVE`, `LEFT`, `RIGHT`, `RTURN`
@@ -55,7 +55,7 @@ python -m scratch
 - **Sensing**: `SCAN`, `COUNT` - Advanced environment analysis
 - **State**: `SAVE`, `LOAD` - Save and restore robot state
 
-## 🎯 Example Programs
+##  Example Programs
 
 ### Simple Movement
 ```
@@ -93,7 +93,7 @@ IF DOOR
 END
 ```
 
-## 🎮 Game Features
+##  Game Features
 
 The Vault Runner Game includes:
 
@@ -111,7 +111,7 @@ The Vault Runner Game includes:
 5. **Multi-Key Mystery**: Solve puzzles with multiple keys
 6. **Speed Run**: Optimize for efficiency
 
-## 🔧 Language Extensions
+##  Language Extensions
 
 ### Extended Commands
 - `WAIT <n>`: Pause execution for n steps
@@ -129,7 +129,7 @@ The Vault Runner Game includes:
 - **Extended Vision**: See further in all directions
 - **State Management**: Save and restore complete robot state
 
-## 🧪 Testing
+##  Testing
 
 ### Run All Tests
 ```bash
@@ -148,7 +148,7 @@ python tests/test.py
 - Error handling validation
 - Extension compatibility tests
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 scratch_prog_lang/
@@ -168,7 +168,7 @@ scratch_prog_lang/
 └── README.md                   # This file
 ```
 
-## 🎯 Use Cases
+##  Use Cases
 
 ### Educational
 - Learn programming concepts through visual simulation
@@ -185,7 +185,7 @@ scratch_prog_lang/
 - Compete for high scores
 - Create and share programs
 
-## 🔍 Program Analysis
+##  Program Analysis
 
 The system provides detailed analysis of programs:
 
@@ -195,21 +195,21 @@ The system provides detailed analysis of programs:
 - **Nesting Depth**: Maximum control structure nesting
 - **Extension Usage**: Advanced feature utilization
 
-## 🚀 Performance
+##  Performance
 
 - **Execution Speed**: Optimized interpreter for real-time simulation
 - **Memory Efficiency**: Minimal memory footprint
 - **Safety Limits**: Built-in protection against infinite loops
 - **Debugging Support**: Step-by-step execution tracking
 
-## 📖 Documentation
+##  Documentation
 
 - **API Reference**: Complete function and class documentation
 - **Tutorial**: Step-by-step learning guide
 - **Examples**: Comprehensive program examples
 - **Best Practices**: Programming guidelines and tips
 
-## 🤝 Contributing
+##  Contributing
 
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/amazing-feature`)
@@ -232,11 +232,11 @@ python -m flake8 src/
 python -m mypy src/
 ```
 
-## 📄 License
+##  License
 
 MIT License - see [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
+##  Acknowledgments
 
 - Inspired by educational programming languages
 - Built for learning and experimentation
