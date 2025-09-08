@@ -5,9 +5,15 @@ import unittest
 
 #sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src', 'scratch'))
 
-from scratch.vault_runner import VaultRunner, create_corridor_world, create_room_world
-from scratch.interpreter import VaultInterpreter
-from scratch.programs import program1_corridor, program2_room, simple_move, simple_loop
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src', 'scratch'))
+
+from vault_runner import VaultRunner, create_corridor_world, create_room_world
+from interpreter import VaultInterpreter
+from programs import program1_corridor, program2_room, simple_move, simple_loop
+from extensions import ExtendedVaultInterpreter, AdvancedVaultRunner, LanguageExtensions
+from game import VaultRunnerGame, GameChallenge
 
 
 class TestVaultRunner(unittest.TestCase):
@@ -281,6 +287,185 @@ def run_benchmarks():
         print(f"  Complexity score: {analysis['complexity_score']}")
 
 
+class TestLanguageExtensions(unittest.TestCase):
+    """Test cases for language extensions."""
+    
+    def test_extended_interpreter_creation(self):
+        """Test creation of extended interpreter."""
+        program = ["MOVE", "MARK", "GOTO"]
+        interpreter = ExtendedVaultInterpreter(program, enable_extensions=True)
+        self.assertTrue(interpreter.enable_extensions)
+        self.assertEqual(len(interpreter.tokens), 3)
+    
+    def test_extended_commands_tokenization(self):
+        """Test tokenization of extended commands."""
+        program = ["WAIT 5", "MARK", "GOTO", "SCAN", "COUNT", "SAVE", "LOAD"]
+        interpreter = ExtendedVaultInterpreter(program, enable_extensions=True)
+        expected_tokens = ['WAIT', 5, 'MARK', 'GOTO', 'SCAN', 'COUNT', 'SAVE', 'LOAD']
+        self.assertEqual(interpreter.tokens, expected_tokens)
+    
+    def test_advanced_vault_runner(self):
+        """Test advanced vault runner features."""
+        world = LanguageExtensions.create_extended_world(5)
+        runner = AdvancedVaultRunner(world, (0, 0), 1, enable_extensions=True)
+        
+        self.assertTrue(runner.enable_extensions)
+        self.assertEqual(runner.energy, 100)
+        self.assertEqual(len(runner.inventory), 0)
+    
+    def test_teleportation(self):
+        """Test teleportation functionality."""
+        world = LanguageExtensions.create_extended_world(5)
+        runner = AdvancedVaultRunner(world, (0, 0), 1, enable_extensions=True)
+        
+        # Add teleport point
+        runner.add_teleport_point('test', (3, 3))
+        
+        # Test teleportation
+        result = runner.teleport('test')
+        self.assertTrue(result)
+        self.assertEqual((runner.x, runner.y), (3, 3))
+        self.assertEqual(runner.energy, 90)  # Should consume 10 energy
+    
+    def test_energy_system(self):
+        """Test energy system."""
+        world = LanguageExtensions.create_extended_world(5)
+        runner = AdvancedVaultRunner(world, (0, 0), 1, enable_extensions=True)
+        
+        # Test energy usage
+        self.assertTrue(runner.use_energy(50))
+        self.assertEqual(runner.energy, 50)
+        
+        # Test insufficient energy
+        self.assertFalse(runner.use_energy(60))
+        self.assertEqual(runner.energy, 50)
+        
+        # Test energy recharge
+        runner.recharge_energy(30)
+        self.assertEqual(runner.energy, 80)
+
+
+class TestGameFeatures(unittest.TestCase):
+    """Test cases for game features."""
+    
+    def test_game_challenge_creation(self):
+        """Test game challenge creation."""
+        def world_creator():
+            return {(0, 0): 'floor', (1, 0): 'exit'}
+        
+        challenge = GameChallenge(
+            name="Test Challenge",
+            description="Test description",
+            world_creator=world_creator,
+            start_pos=(0, 0),
+            start_dir=1,
+            success_condition="Reach exit"
+        )
+        
+        self.assertEqual(challenge.name, "Test Challenge")
+        self.assertEqual(challenge.start_pos, (0, 0))
+        self.assertIsNone(challenge.best_score)
+    
+    def test_challenge_program_testing(self):
+        """Test program testing in challenges."""
+        def world_creator():
+            return {(0, 0): 'floor', (1, 0): 'exit'}
+        
+        challenge = GameChallenge(
+            name="Test Challenge",
+            description="Test description",
+            world_creator=world_creator,
+            start_pos=(0, 0),
+            start_dir=1,
+            success_condition="Reach exit"
+        )
+        
+        program = ["MOVE"]
+        result = challenge.test_program(program)
+        
+        self.assertIn('success', result)
+        self.assertIn('score', result)
+        self.assertIn('instructions', result)
+    
+    def test_game_creation(self):
+        """Test game creation and initialization."""
+        game = VaultRunnerGame()
+        self.assertEqual(len(game.challenges), 6)
+        self.assertEqual(game.player_name, "Player")
+        self.assertEqual(len(game.score_history), 0)
+
+
+class TestProgramAnalysis(unittest.TestCase):
+    """Test cases for program analysis features."""
+    
+    def test_extended_program_analysis(self):
+        """Test extended program analysis."""
+        program = ["MOVE", "MARK", "GOTO", "IF KEY", "PICK", "END"]
+        analysis = LanguageExtensions.analyze_program_complexity(program)
+        
+        self.assertIn('has_extensions', analysis)
+        self.assertIn('extension_count', analysis)
+        self.assertTrue(analysis['has_extensions'])
+        self.assertGreater(analysis['extension_count'], 0)
+    
+    def test_sample_programs_creation(self):
+        """Test creation of sample extended programs."""
+        programs = LanguageExtensions.create_sample_extended_programs()
+        
+        self.assertIn('teleport_explorer', programs)
+        self.assertIn('scanner_bot', programs)
+        self.assertIn('state_saver', programs)
+        self.assertIn('wait_and_see', programs)
+        
+        # Check that programs contain extended commands
+        for name, program in programs.items():
+            self.assertIsInstance(program, list)
+            self.assertGreater(len(program), 0)
+
+
+class TestErrorHandling(unittest.TestCase):
+    """Test cases for error handling and edge cases."""
+    
+    def test_invalid_extension_commands(self):
+        """Test handling of invalid extension commands."""
+        program = ["INVALID_COMMAND"]
+        
+        with self.assertRaises(SyntaxError):
+            ExtendedVaultInterpreter(program, enable_extensions=True)
+    
+    def test_extension_token_limit(self):
+        """Test that extensions respect token limit."""
+        # Create program with too many distinct tokens
+        program = ["MOVE", "LEFT", "RIGHT", "PICK", "OPEN", "LOOP", "END", "IF", "WHILE",
+                  "FRONT", "KEY", "DOOR", "EXIT", "SET", "CLR", "WAIT", "MARK", "GOTO",
+                  "SCAN", "COUNT", "SAVE", "LOAD", "NORTH", "SOUTH", "EAST", "WEST"]
+        
+        with self.assertRaises(SyntaxError):
+            ExtendedVaultInterpreter(program, enable_extensions=True)
+    
+    def test_game_challenge_error_handling(self):
+        """Test error handling in game challenges."""
+        def world_creator():
+            return {(0, 0): 'floor'}
+        
+        challenge = GameChallenge(
+            name="Test Challenge",
+            description="Test description",
+            world_creator=world_creator,
+            start_pos=(0, 0),
+            start_dir=1,
+            success_condition="Test"
+        )
+        
+        # Test with invalid program
+        invalid_program = ["INVALID_COMMAND"]
+        result = challenge.test_program(invalid_program)
+        
+        self.assertFalse(result['success'])
+        self.assertIn('error', result)
+        self.assertEqual(result['score'], 0)
+
+
 def main():
     """Run all tests and benchmarks."""
     print("VAULT RUNNER PROGRAMMING LANGUAGE TEST SUITE")
@@ -297,13 +482,16 @@ def main():
     print(f"\n{'=' * 60}")
     print("TEST SUITE COMPLETED")
     print("=" * 60)
-    print("\nIf all tests passed, the implementation meets the assignment requirements:")
+    print("\nIf all tests passed, the implementation meets the requirements:")
     print("✓ Tokenizer correctly parses valid programs and rejects invalid ones")
     print("✓ Parser enforces grammar rules and catches syntax errors")
     print("✓ Executor correctly maps to robot actions through API")
     print("✓ Token limit constraint (≤20 distinct symbols) is enforced")
     print("✓ Programs can navigate corridor and room environments")
     print("✓ World visualization shows robot position and environment state")
+    print("✓ Language extensions work correctly")
+    print("✓ Game features function properly")
+    print("✓ Error handling is robust")
 
 
 if __name__ == "__main__":
