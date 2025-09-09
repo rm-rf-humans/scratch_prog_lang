@@ -940,6 +940,7 @@ class VaultRunnerGUI(QMainWindow):
                 
             # Check if program is complete
             if self.step_interpreter.pc >= len(self.step_interpreter.tokens) or self.step_runner.escaped:
+                print(f"DEBUG: Completing execution - PC: {self.step_interpreter.pc}/{len(self.step_interpreter.tokens)}, Escaped: {self.step_runner.escaped}")
                 self.complete_step_execution()
                 return
                 
@@ -954,6 +955,7 @@ class VaultRunnerGUI(QMainWindow):
                 return
                 
             current_token = self.step_interpreter.tokens[self.step_interpreter.pc]
+            print(f"DEBUG: Step {self.step_interpreter.instruction_count} - PC: {self.step_interpreter.pc}, Token: {current_token}, Pos: ({self.step_runner.x}, {self.step_runner.y})")
             
             # Ensure interpreter has the runner reference
             if not hasattr(self.step_interpreter, 'runner') or self.step_interpreter.runner != self.step_runner:
