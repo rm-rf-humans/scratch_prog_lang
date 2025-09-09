@@ -226,6 +226,12 @@ class VaultRunnerGUI(QMainWindow):
         self.game = VaultRunnerGame()
         self.current_challenge = None
         self.execution_thread = None
+        self.step_timer = QTimer()
+        self.step_timer.timeout.connect(self.execute_next_step)
+        self.step_execution_active = False
+        self.step_interpreter = None
+        self.step_runner = None
+        self.step_paused = False
         self.init_ui()
         
     def init_ui(self):
@@ -418,15 +424,52 @@ class VaultRunnerGUI(QMainWindow):
         self.test_position_button.clicked.connect(self.test_single_position)
         test_button_layout.addWidget(self.test_position_button)
         
+        self.test_step_by_step_button = QPushButton("Step-by-Step Test")
+        self.test_step_by_step_button.clicked.connect(self.test_position_step_by_step)
+        self.test_step_by_step_button.setStyleSheet("""
+            QPushButton {
+                background-color: #2196F3;
+                color: white;
+                border: none;
+                padding: 8px;
+                border-radius: 4px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #1976D2;
+            }
+            QPushButton:pressed {
+                background-color: #0D47A1;
+            }
+        """)
+        test_button_layout.addWidget(self.test_step_by_step_button)
+        
         self.test_all_button = QPushButton("Test All Positions")
         self.test_all_button.clicked.connect(self.test_all_positions)
         test_button_layout.addWidget(self.test_all_button)
         
+        testing_layout.addLayout(test_button_layout)
+        
+        # Step execution controls
+        step_control_layout = QHBoxLayout()
+        
         self.reset_display_button = QPushButton("Reset Display")
         self.reset_display_button.clicked.connect(self.reset_world_display)
-        test_button_layout.addWidget(self.reset_display_button)
+        step_control_layout.addWidget(self.reset_display_button)
         
-        testing_layout.addLayout(test_button_layout)
+        step_control_layout.addWidget(QLabel("Speed:"))
+        self.speed_slider = QSpinBox()
+        self.speed_slider.setRange(50, 2000)
+        self.speed_slider.setValue(500)
+        self.speed_slider.setSuffix(" ms")
+        step_control_layout.addWidget(self.speed_slider)
+        
+        self.pause_button = QPushButton("Pause")
+        self.pause_button.clicked.connect(self.toggle_step_execution)
+        self.pause_button.setEnabled(False)
+        step_control_layout.addWidget(self.pause_button)
+        
+        testing_layout.addLayout(step_control_layout)
         
         # Test results display
         self.test_results_label = QLabel("No tests run")
@@ -668,6 +711,8 @@ class VaultRunnerGUI(QMainWindow):
         
     def reset_world_display(self):
         """Reset the world display to the default challenge state."""
+        # Stop any running step execution
+        self.stop_step_execution()
         self.update_world_display()
         self.test_results_label.setText("World display reset to default challenge state")
         self.status_label.setText("World display reset")
@@ -790,6 +835,246 @@ class VaultRunnerGUI(QMainWindow):
             QMessageBox.critical(self, "Test Error", f"Error running comprehensive tests: {str(e)}")
             self.status_label.setText("Comprehensive test failed")
 
+    def test_position_step_by_step(self):
+        """Test the current program with step-by-step visual execution."""
+        if not self.current_challenge:
+            QMessageBox.warning(self, "No Challenge", "Please select a challenge first.")
+            return
+            
+        program_text = self.program_editor.toPlainText().strip()
+        if not program_text:
+            QMessageBox.warning(self, "No Program", "Please enter a program to test.")
+            return
+            
+        # Stop any existing step execution
+        self.stop_step_execution()
+        
+        # Get test position and direction
+        test_x = self.pos_x_spin.value()
+        test_y = self.pos_y_spin.value()
+        test_dir = self.direction_combo.currentIndex()
+        
+        try:
+            # Parse program
+            program_lines = [line.strip() for line in program_text.split('\n') 
+                           if line.strip() and not line.strip().startswith('#')]
+            
+            self.step_interpreter = VaultInterpreter(program_lines)
+            self.step_interpreter.max_instructions = 1000
+            
+            # Create world and runner
+            world_creator = self._get_world_creator()
+            world = world_creator()
+            
+            # Handle special cases for Extension Challenge
+            if self.current_challenge.name == "Extension Challenge":
+                import random
+                valid_positions = [(x, y) for x in range(4) for y in range(4)]
+                if (test_x, test_y) not in valid_positions:
+                    test_x, test_y = random.choice(valid_positions)
+                self.step_runner = VaultRunner(world, (test_x, test_y), test_dir)
+                self.step_runner.correct_key_pos = (1, 3)
+            else:
+                self.step_runner = VaultRunner(world, (test_x, test_y), test_dir)
+            
+            # Verify runner was created successfully
+            if self.step_runner is None:
+                raise Exception("Failed to create runner object")
+            
+            # Set up interpreter with runner reference
+            self.step_interpreter.runner = self.step_runner
+            
+            # Set up custom display function for step updates
+            self.step_runner.display_world = self.update_step_display
+            
+            # Start step execution
+            self.step_execution_active = True
+            self.step_paused = False
+            self.pause_button.setEnabled(True)
+            self.pause_button.setText("Pause")
+            self.test_step_by_step_button.setEnabled(False)
+            
+            # Update display with initial state
+            self.world_display.update_world(world, self.step_runner)
+            
+            self.status_label.setText(f"Step-by-step execution started from ({test_x}, {test_y}), direction {test_dir}")
+            self.test_results_label.setText(f"<b>Step-by-Step Execution</b><br>Starting at ({test_x}, {test_y}), direction {test_dir}<br>Instructions executed: 0")
+            
+            # Start the step timer
+            self.step_timer.start(self.speed_slider.value())
+            
+        except Exception as e:
+            QMessageBox.critical(self, "Step Execution Error", f"Error starting step execution: {str(e)}")
+            self.stop_step_execution()
+
+    def execute_next_step(self):
+        """Execute the next step in the program."""
+        if not self.step_execution_active or self.step_paused or not self.step_interpreter or not self.step_runner:
+            self.stop_step_execution()
+            return
+            
+        try:
+            # Double check that runner is still valid
+            if self.step_runner is None:
+                self.complete_step_execution("Error: Runner object became None")
+                return
+                
+            # Check if program is complete
+            if self.step_interpreter.pc >= len(self.step_interpreter.tokens) or self.step_runner.escaped:
+                self.complete_step_execution()
+                return
+                
+            # Execute one instruction
+            if self.step_interpreter.instruction_count >= self.step_interpreter.max_instructions:
+                self.complete_step_execution("Maximum instructions reached")
+                return
+                
+            # Get current instruction for display
+            if self.step_interpreter.pc >= len(self.step_interpreter.tokens):
+                self.complete_step_execution()
+                return
+                
+            current_token = self.step_interpreter.tokens[self.step_interpreter.pc]
+            
+            # Ensure interpreter has the runner reference
+            if not hasattr(self.step_interpreter, 'runner') or self.step_interpreter.runner != self.step_runner:
+                self.step_interpreter.runner = self.step_runner
+            
+            # Execute the instruction safely
+            old_pc = self.step_interpreter.pc
+            try:
+                # Increment instruction count (like the normal run loop)
+                self.step_interpreter.instruction_count += 1
+                
+                # Record execution step for debugging (like the normal run loop)
+                step_info = {
+                    'pc': self.step_interpreter.pc,
+                    'token': current_token,
+                    'position': (self.step_runner.x, self.step_runner.y),
+                    'direction': self.step_runner.direction,
+                    'has_key': self.step_runner.has_key,
+                    'door_opened': self.step_runner.door_opened
+                }
+                self.step_interpreter.execution_history.append(step_info)
+                
+                # The _execute_instruction method expects (token, show_steps)
+                # It uses self.runner internally, so we need to make sure it's set
+                self.step_interpreter._execute_instruction(current_token, True)
+                
+                # Advance program counter (like the normal run loop)
+                # The _execute_instruction method handles control flow PC changes internally
+                self.step_interpreter.pc += 1
+                
+                # Check escape status after each instruction (like the normal run loop)
+                self.step_runner.check_escape()
+                
+                # Update the world display after each instruction
+                self.update_step_display()
+                
+            except Exception as exec_error:
+                self.complete_step_execution(f"Execution error: {str(exec_error)}")
+                return
+            
+            # Verify runner is still valid after instruction
+            if self.step_runner is None:
+                self.complete_step_execution("Error: Runner object became None during execution")
+                return
+            
+            # Update the timer interval if speed changed
+            if self.step_timer.interval() != self.speed_slider.value():
+                self.step_timer.start(self.speed_slider.value())
+            
+            # Update status
+            escape_status = " - ESCAPED!" if self.step_runner.escaped else ""
+            direction_names = ["North", "East", "South", "West"]
+            direction_name = direction_names[self.step_runner.direction] if 0 <= self.step_runner.direction < 4 else "Unknown"
+            self.status_label.setText(f"Executed: {current_token} | Position: ({self.step_runner.x}, {self.step_runner.y}) facing {direction_name}{escape_status}")
+            
+            # Update results display
+            escape_via = getattr(self.step_runner, 'escape_via', 'none')
+            call_stack_info = f"{len(self.step_interpreter.call_stack)} levels" if self.step_interpreter.call_stack else "empty"
+            
+            results_html = f"""
+<b>Step-by-Step Execution</b><br>
+<b>Current Position:</b> ({self.step_runner.x}, {self.step_runner.y})<br>
+<b>Direction:</b> {direction_name} ({self.step_runner.direction})<br>
+<b>Instructions Executed:</b> {self.step_interpreter.instruction_count}<br>
+<b>Program Counter:</b> {self.step_interpreter.pc}<br>
+<b>Current Instruction:</b> {current_token}<br>
+<b>Call Stack:</b> {call_stack_info}<br>
+<b>Has Key:</b> {self.step_runner.has_key}<br>
+<b>Door Opened:</b> {self.step_runner.door_opened}<br>
+<b>Escaped:</b> {self.step_runner.escaped}<br>
+<b>Escape Via:</b> {escape_via}
+            """.strip()
+            
+            self.test_results_label.setText(results_html)
+            
+        except Exception as e:
+            self.complete_step_execution(f"Error: {str(e)}")
+
+    def update_step_display(self, show_steps=True):
+        """Custom display function for step-by-step execution."""
+        if self.step_runner:
+            world_creator = self._get_world_creator()
+            world = world_creator()
+            self.world_display.update_world(world, self.step_runner)
+
+    def complete_step_execution(self, message=""):
+        """Complete the step-by-step execution."""
+        success = self.step_runner.escaped if self.step_runner else False
+        
+        # Determine success based on challenge
+        if self.current_challenge.name == "Extension Challenge" and self.step_runner:
+            success = self.step_runner.escaped and getattr(self.step_runner, 'escape_via', '') == 'door'
+        
+        success_text = "SUCCESS" if success else "FAILED"
+        color = "#4CAF50" if success else "#f44336"
+        
+        final_message = message if message else ("Program completed successfully!" if success else "Program failed to complete challenge.")
+        
+        results_html = f"""
+<b style="color: {color};">Step Execution Complete: {success_text}</b><br>
+<b>Final Position:</b> ({self.step_runner.x}, {self.step_runner.y})<br>
+<b>Total Instructions:</b> {self.step_interpreter.instruction_count}<br>
+<b>Has Key:</b> {self.step_runner.has_key}<br>
+<b>Door Opened:</b> {self.step_runner.door_opened}<br>
+<b>Escaped:</b> {self.step_runner.escaped}<br>
+<b>Escape Via:</b> {getattr(self.step_runner, 'escape_via', 'none')}<br>
+<b>Result:</b> {final_message}
+        """.strip()
+        
+        self.test_results_label.setText(results_html)
+        self.status_label.setText(f"Step execution completed: {success_text}")
+        
+        self.stop_step_execution()
+
+    def toggle_step_execution(self):
+        """Toggle pause/resume for step execution."""
+        if not self.step_execution_active:
+            return
+            
+        self.step_paused = not self.step_paused
+        if self.step_paused:
+            self.step_timer.stop()
+            self.pause_button.setText("Resume")
+            self.status_label.setText("Step execution paused")
+        else:
+            self.step_timer.start(self.speed_slider.value())
+            self.pause_button.setText("Pause")
+            self.status_label.setText("Step execution resumed")
+
+    def stop_step_execution(self):
+        """Stop the step-by-step execution."""
+        self.step_execution_active = False
+        self.step_paused = False
+        self.step_timer.stop()
+        self.pause_button.setEnabled(False)
+        self.pause_button.setText("Pause")
+        self.test_step_by_step_button.setEnabled(True)
+        self.step_interpreter = None
+        self.step_runner = None
+
     def _run_position_test(self, program_text: str, x: int, y: int, direction: int) -> dict:
         """Run a single position test and return results."""
         result, _ = self._run_position_test_with_display(program_text, x, y, direction)
@@ -873,6 +1158,10 @@ class VaultRunnerGUI(QMainWindow):
 
     def closeEvent(self, event):
         """Handle window close event."""
+        # Stop step execution
+        self.stop_step_execution()
+        
+        # Stop regular execution thread
         if self.execution_thread and self.execution_thread.isRunning():
             self.execution_thread.stop_execution()
             self.execution_thread.wait()
