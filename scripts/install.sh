@@ -33,16 +33,18 @@ mkdir -p "$INSTALL_DIR"
 mkdir -p "$BIN_DIR"
 
 # Download and install the Vault Runner package
-echo -e "${BLUE}📦 Installing Vault Runner language extension...${NC}"
+echo -e "${BLUE} Installing Vault Runner language extension...${NC}"
 
 # Copy the source files to installation directory
 if [ -d "src/scratch" ]; then
     echo -e "${BLUE} Copying source files...${NC}"
     cp -r src/scratch "$INSTALL_DIR/"
-    cp -r tests "$INSTALL_DIR/"
-    cp pyproject.toml "$INSTALL_DIR/"
-    cp README.md "$INSTALL_DIR/"
-    cp demo.py "$INSTALL_DIR/"
+    [ -d tests ] && cp -r tests "$INSTALL_DIR/" || true
+    [ -f pyproject.toml ] && cp pyproject.toml "$INSTALL_DIR/" || true
+    [ -f README.md ] && cp README.md "$INSTALL_DIR/" || true
+    if [ -d examples ]; then
+        cp -r examples "$INSTALL_DIR/"
+    fi
 else
     echo -e "${RED} Source files not found. Please run this script from the Vault Runner project directory.${NC}"
     exit 1
@@ -140,7 +142,11 @@ def main():
         subprocess.run([sys.executable, os.path.join(INSTALL_DIR, "scratch", "__main__.py"), "8"])
     elif args.demo:
         import subprocess
-        subprocess.run([sys.executable, os.path.join(INSTALL_DIR, "demo.py")])
+        demo_path = os.path.join(INSTALL_DIR, "examples", "demo.py")
+        if os.path.exists(demo_path):
+            subprocess.run([sys.executable, demo_path])
+        else:
+            print(" Demo not available (examples/demo.py not found)")
     elif args.file:
         execute_sc_file(args.file, args.verbose)
     else:
@@ -274,9 +280,9 @@ echo ""
 echo -e "${GREEN} Installation completed successfully!${NC}"
 echo ""
 echo -e "${BLUE} What's installed:${NC}"
-echo "   • vault-runner command in $BIN_DIR"
-echo "   • Vault Runner source files in $INSTALL_DIR"
-echo "   • Example program: $INSTALL_DIR/example.sc"
+echo "   - vault-runner command in $BIN_DIR"
+echo "   - Vault Runner source files in $INSTALL_DIR"
+echo "   - Example program: $INSTALL_DIR/example.sc"
 echo ""
 echo -e "${BLUE} Usage examples:${NC}"
 echo "   vault-runner -i                    # Interactive mode"
@@ -285,7 +291,7 @@ echo "   vault-runner -e                    # Try extensions"
 echo "   vault-runner -d                    # Run demo"
 echo "   vault-runner example.sc            # Execute .sc file"
 echo "   vault-runner my_program.sc -v      # Execute with verbose output"
-echo "   python3 launch_gui.py              # Launch GUI game"
+echo "   # GUI is available from the main app if installed with dependencies"
 echo ""
 echo -e "${BLUE} Create your first program:${NC}"
 echo "   echo 'MOVE' > hello.sc"
