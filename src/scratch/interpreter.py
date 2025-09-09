@@ -3,7 +3,7 @@ class VaultInterpreter:
     Interpreter for the Vault Runner programming language.
     
     This interpreter executes programs written in a simple language designed
-    to control a robot in a 2D vault environment. The language supports
+    to control a robot in a 2D-vault environment. The language supports
     movement, sensing, control flow, and state management within strict
     constraints (max 20 distinct tokens).
     """
