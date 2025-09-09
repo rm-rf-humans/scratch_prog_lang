@@ -41,6 +41,44 @@ python -m scratch
 # Select option 7: Play the Vault Runner Game
 ```
 
+### Minimal Interpreter Example (per supplement)
+
+Use a list of strings as the input program and run the interpreter directly:
+
+```python
+from interpreter import VaultInterpreter
+from vault_runner import VaultRunner, create_room_world
+
+program = [
+    "MOVE",
+    "IF KEY",
+    "  PICK",
+    "END",
+    "RIGHT",
+    "MOVE",
+]
+
+interpreter = VaultInterpreter(program)
+world = create_room_world()
+runner = VaultRunner(world, start_pos=(0, 0), start_dir=0)
+result = interpreter.run(runner, show_steps=False)
+
+print("Escaped:", result)
+```
+
+Example output (varies by world and program):
+
+```
+=== Starting program execution ===
+
+=== Program execution completed ===
+Instructions executed: 6
+Robot escaped: False
+Robot has key: False
+Door opened: False
+Final position: (0, 1)
+```
+
 ### Try Extensions
 ```bash
 python -m scratch
