@@ -5,6 +5,7 @@ class VaultRunner:
         self.has_key = False
         self.door_opened = False
         self.escaped = False
+        self.escape_via = None  # 'exit' or 'door'
         self.original_world = None
         
         # Use provided world or create default
@@ -135,9 +136,11 @@ class VaultRunner:
         """Check if robot has escaped."""
         if self.at_exit():
             self.escaped = True
+            self.escape_via = 'exit'
             self.actions_log.append("Escaped through exit!")
         elif self.at_door() and self.door_opened:
             self.escaped = True
+            self.escape_via = 'door'
             self.actions_log.append("Escaped through opened door!")
         return self.escaped
     

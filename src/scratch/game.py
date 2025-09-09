@@ -59,9 +59,13 @@ class GameChallenge:
             start_time = time.time()
             result = interpreter.run(runner, show_steps=False)
             end_time = time.time()
-            
+
+            # Enforce Extension Challenge success: must escape via the door
+            if self.name == "Extension Challenge":
+                result = bool(runner.escaped and runner.escape_via == 'door')
+
             score = self._calculate_score(interpreter, runner, end_time - start_time)
-            
+
             return {
                 'success': result,
                 'score': score,
@@ -70,6 +74,7 @@ class GameChallenge:
                 'final_position': (runner.x, runner.y),
                 'has_key': runner.has_key,
                 'door_opened': runner.door_opened,
+                'escape_via': getattr(runner, 'escape_via', None),
                 'analysis': interpreter.analyze_program()
             }
             
