@@ -602,24 +602,35 @@ MOVE
 PICK"""
         elif self.current_challenge.name == "Door Master":
             sample_program = """# Door Master - Corridor Navigation (Program 1)
-# Navigate twisting corridor with unknown start position/direction
-# Strategy: Explore all directions systematically to find key, door, exit
-# This handles the L-shaped corridor: horizontal then vertical
-LOOP 8
-  WHILE FRONT
-    MOVE
-    IF KEY
-      PICK
-    END
-    IF DOOR
-      OPEN
-      MOVE
-    END
-    IF EXIT
-      MOVE
-    END
+# Navigate twisting corridor with unknown start position/direction  
+# Two-phase strategy: 1) Move to end and get key, 2) Find vertical path
+WHILE FRONT
+  MOVE
+  IF KEY
+    PICK
   END
-  RIGHT
+END
+LEFT
+WHILE FRONT
+  MOVE
+  IF DOOR
+    OPEN
+    MOVE
+  END
+  IF EXIT
+    MOVE
+  END
+END
+RIGHT
+WHILE FRONT
+  MOVE
+  IF DOOR
+    OPEN
+    MOVE
+  END
+  IF EXIT
+    MOVE
+  END
 END"""
         else:
             sample_program = """# Sample Program
