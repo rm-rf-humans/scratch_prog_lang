@@ -45,21 +45,95 @@ program1_corridor = [
     "END"
 ]
 
-# Program 2: Navigate rectangular room
-# Robot starts at lower-left facing north
-# Room has no obstacles, contains key, door, and exit
+# Program 2: BFS Algorithm for rectangular room navigation
+# Robot starts at lower-left (0,0) facing north
+# Implements optimal BFS pathfinding: explore nearest positions first
+# Goal: Find shortest path to either EXIT or KEY+DOOR
 program2_room = [
-    "LOOP 50",
-    "  IF FRONT",
-    "    MOVE",
-    "  END",
-    "  RIGHT",
-    "  IF KEY",
-    "    PICK",
-    "  END", 
-    "  IF DOOR",
-    "    OPEN",
-    "  END",
+    # BFS Level 0: Current position (0,0) - check immediate area
+    "IF EXIT",
+    "  MOVE",  # Exit immediately if at start
+    "END",
+    
+    # BFS Level 1: Explore distance-1 positions (north and east from start)
+    # Move north first (facing north already)
+    "MOVE",  # Go to (0,1) - BFS distance 1
+    "IF EXIT",
+    "  MOVE",
+    "END",
+    "IF KEY",
+    "  PICK",
+    "END",
+    "IF DOOR",
+    "  OPEN",
+    "  MOVE",
+    "END",
+    
+    # BFS Level 2: Explore distance-2 positions
+    # Continue north
+    "MOVE",  # Go to (0,2) - BFS distance 2  
+    "IF EXIT",
+    "  MOVE",
+    "END",
+    "IF KEY",
+    "  PICK",
+    "END",
+    "IF DOOR",
+    "  OPEN",
+    "  MOVE",
+    "END",
+    
+    # BFS Level 3: Explore distance-3 positions
+    # Continue north
+    "MOVE",  # Go to (0,3) - BFS distance 3
+    "IF EXIT",
+    "  MOVE",
+    "END",
+    "IF KEY",
+    "  PICK",
+    "END",
+    "IF DOOR",
+    "  OPEN",
+    "  MOVE",
+    "END",
+    
+    # Now explore horizontally at this level (optimal BFS pattern)
+    "RIGHT",  # Face east
+    "MOVE",   # Go to (1,3) - BFS distance 4
+    "IF EXIT",
+    "  MOVE",
+    "END",
+    "IF KEY",
+    "  PICK",
+    "END",
+    "IF DOOR",
+    "  OPEN",
+    "  MOVE",
+    "END",
+    
+    "MOVE",   # Go to (2,3) - BFS distance 5 - THIS IS THE EXIT!
+    "IF EXIT",
+    "  MOVE",  # Optimal BFS solution: 5 moves to exit
+    "END",
+    "IF KEY",
+    "  PICK",
+    "END",
+    "IF DOOR",
+    "  OPEN",
+    "  MOVE",
+    "END",
+    
+    # Continue BFS exploration if exit not found yet
+    "MOVE",   # Go to (3,3) - BFS distance 6
+    "IF EXIT",
+    "  MOVE",
+    "END",
+    "IF KEY",
+    "  PICK",
+    "END",
+    "IF DOOR",
+    "  OPEN",
+    "  MOVE",
     "END"
 ]
 

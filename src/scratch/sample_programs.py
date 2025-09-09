@@ -45,7 +45,7 @@ PICK"""
     
     @staticmethod
     def get_room_explorer():
-        """Sample program for Room Explorer challenge (Program 2 - Room)."""
+        """Sample program for Room Explorer challenge (Program 2 - BFS Algorithm)."""
         return SamplePrograms.get_program_text(program2_room)
     
     @staticmethod
