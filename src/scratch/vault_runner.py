@@ -193,7 +193,7 @@ class VaultRunner:
 
 
 def create_corridor_world():
-    """Create a fixed twisting corridor world for Program 1."""
+    """Create a fixed twisting corridor world for Program 1 (Original L-shape)."""
     return {
         # Main horizontal corridor (y=0)
         (0, 0): 'floor', (1, 0): 'floor', (2, 0): 'floor', 

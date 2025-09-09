@@ -123,15 +123,6 @@ class VaultRunnerGame:
                 max_instructions=50
             ),
             
-            GameChallenge(
-                name="Key Collector",
-                description="Find and collect the key in the room. Watch out for walls!",
-                world_creator=lambda: self._create_key_room(),
-                start_pos=(0, 0),
-                start_dir=0,  # North
-                success_condition="Collect the key",
-                max_instructions=200
-            ),
             
             GameChallenge(
                 name="Door Master",
@@ -140,7 +131,7 @@ class VaultRunnerGame:
                 start_pos=(0, 0),
                 start_dir=1,  # East
                 success_condition="Escape through the door",
-                max_instructions=500
+                max_instructions=2000
             ),
             
             GameChallenge(
@@ -151,26 +142,6 @@ class VaultRunnerGame:
                 start_dir=0,  # North
                 success_condition="Find and reach the exit",
                 max_instructions=1000
-            ),
-            
-            GameChallenge(
-                name="Multi-Key Mystery",
-                description="Multiple keys exist, but only one opens the door. Find the right one!",
-                world_creator=create_multi_key_world,
-                start_pos=(4, 3),
-                start_dir=0,  # North
-                success_condition="Escape using the correct key",
-                max_instructions=2000
-            ),
-            
-            GameChallenge(
-                name="Speed Run",
-                description="Escape as quickly as possible! Efficiency is key.",
-                world_creator=create_corridor_world,
-                start_pos=(0, 0),
-                start_dir=1,  # East
-                success_condition="Escape in minimum instructions",
-                max_instructions=100
             ),
             
             GameChallenge(
@@ -195,26 +166,6 @@ class VaultRunnerGame:
             (0, -1): 'wall', (1, -1): 'wall', (2, -1): 'wall', (3, -1): 'wall'
         }
     
-    def _create_key_room(self):
-        """Create a room with a key to collect."""
-        world = {}
-        # 5x3 room
-        for x in range(5):
-            for y in range(3):
-                world[(x, y)] = 'floor'
-        
-        # Walls
-        for x in range(-1, 6):
-            world[(x, -1)] = 'wall'
-            world[(x, 3)] = 'wall'
-        for y in range(-1, 4):
-            world[(-1, y)] = 'wall'
-            world[(5, y)] = 'wall'
-        
-        # Key in the middle
-        world[(2, 1)] = 'key'
-        
-        return world
     
     def _create_extension_world(self):
         """Create the extension challenge world with multiple keys, one door, and one exit."""

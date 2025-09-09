@@ -3,9 +3,9 @@ import os
 
 sys.path.insert(0, os.path.dirname(__file__))
 
-from vault_runner import VaultRunner, create_corridor_world, create_room_world, create_multi_key_world
+from vault_runner import VaultRunner, create_corridor_world, create_room_world
 from interpreter import VaultInterpreter
-from programs import program1_corridor, program2_room, program3_multikey, print_program_analysis
+from programs import program1_corridor, program2_room, print_program_analysis
 from game import VaultRunnerGame
 from extensions import ExtendedVaultInterpreter, AdvancedVaultRunner, LanguageExtensions
 
@@ -21,7 +21,6 @@ def interactive_demo():
         print("1. Analyze all programs")
         print("2. Run Program 1 (Corridor Navigation)")
         print("3. Run Program 2 (Room Exploration)")
-        print("4. Run Program 3 (Multi-key Challenge) [Optional]")
         print("5. Custom program input")
         print("6. Show world visualizations only")
         print("7. Play the Vault Runner Game")
@@ -39,9 +38,6 @@ def interactive_demo():
             
         elif choice == '3':
             demo_room_program()
-            
-        elif choice == '4':
-            demo_multikey_program()
             
         elif choice == '5':
             demo_custom_program()
@@ -160,39 +156,6 @@ def demo_room_program():
         print("◦ Robot completed exploration (may not have found exit)")
 
 
-def demo_multikey_program():
-    """Demonstrate Program 3: Multi-key Challenge (Optional)."""
-    print("\n" + "=" * 60)
-    print("PROGRAM 3: MULTI-KEY CHALLENGE (OPTIONAL)")
-    print("=" * 60)
-    
-    print("\nProgram Description:")
-    print("- Room contains multiple keys, only one opens the door")
-    print("- Robot starts at unknown position and direction")
-    print("- Uses random exploration with key testing")
-    print("- More complex logic with flag management")
-    
-    # Show program code
-    print("\nProgram Code:")
-    print("-" * 20)
-    for i, line in enumerate(program3_multikey, 1):
-        print(f"{i:2d}: {line}")
-    
-    # Create world and runner
-    world = create_multi_key_world()
-    runner = VaultRunner(world, (4, 3), 0)  # Random start
-    
-    print("\nInitial World State:")
-    runner.display_world()
-    
-    # Run program
-    print("\nExecuting program...")
-    interpreter = VaultInterpreter(program3_multikey)
-    result = interpreter.run(runner, show_steps=False)
-    
-    print(f"\n{'SUCCESS!' if result else 'COMPLETED'}")
-
-
 def demo_custom_program():
     """Allow user to input a custom program."""
     print("\n" + "=" * 60)
@@ -232,9 +195,8 @@ def demo_custom_program():
         print("\nSelect world:")
         print("1. Corridor world")
         print("2. Room world")
-        print("3. Multi-key world")
         
-        world_choice = input("Enter choice (1-3): ").strip()
+        world_choice = input("Enter choice (1-2): ").strip()
         
         if world_choice == '1':
             world = create_corridor_world()
@@ -242,9 +204,6 @@ def demo_custom_program():
         elif world_choice == '2':
             world = create_room_world()
             start_pos, start_dir = (0, 0), 0
-        elif world_choice == '3':
-            world = create_multi_key_world()
-            start_pos, start_dir = (4, 3), 0
         else:
             print("Invalid choice, using room world.")
             world = create_room_world()
@@ -282,11 +241,6 @@ def show_world_visualizations():
     runner2 = VaultRunner(room_world, (0, 0), 0)
     runner2.display_world()
     
-    print("\n3. MULTI-KEY WORLD:")
-    print("-" * 20)
-    multi_world = create_multi_key_world()
-    runner3 = VaultRunner(multi_world, (4, 3), 0)
-    runner3.display_world()
     
     print("Legend:")
     print("███ = Wall    · = Floor    K = Key    D = Door    E = Exit")

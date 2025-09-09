@@ -392,95 +392,78 @@ class VaultRunnerGUI(QMainWindow):
         
         layout.addWidget(analysis_group)
         
-        # Position testing section
-        testing_group = QGroupBox("Position Testing")
-        testing_layout = QVBoxLayout(testing_group)
-        
-        # Position controls
-        position_layout = QHBoxLayout()
-        
-        position_layout.addWidget(QLabel("Start Position:"))
-        self.pos_x_spin = QSpinBox()
-        self.pos_x_spin.setRange(-10, 10)
-        self.pos_x_spin.setValue(0)
-        position_layout.addWidget(QLabel("X:"))
-        position_layout.addWidget(self.pos_x_spin)
-        
-        self.pos_y_spin = QSpinBox()
-        self.pos_y_spin.setRange(-10, 10)
-        self.pos_y_spin.setValue(0)
-        position_layout.addWidget(QLabel("Y:"))
-        position_layout.addWidget(self.pos_y_spin)
-        
-        position_layout.addWidget(QLabel("Direction:"))
-        self.direction_combo = QComboBox()
-        self.direction_combo.addItems(["North (0)", "East (1)", "South (2)", "West (3)"])
-        position_layout.addWidget(self.direction_combo)
-        
-        testing_layout.addLayout(position_layout)
-        
-        # Testing buttons
-        test_button_layout = QHBoxLayout()
-        
-        self.test_position_button = QPushButton("Test Position")
-        self.test_position_button.clicked.connect(self.test_single_position)
-        test_button_layout.addWidget(self.test_position_button)
-        
-        self.test_step_by_step_button = QPushButton("Step-by-Step Test")
-        self.test_step_by_step_button.clicked.connect(self.test_position_step_by_step)
-        self.test_step_by_step_button.setStyleSheet("""
-            QPushButton {
-                background-color: #2196F3;
-                color: white;
-                border: none;
-                padding: 8px;
-                border-radius: 4px;
-                font-weight: bold;
-            }
-            QPushButton:hover {
-                background-color: #1976D2;
-            }
-            QPushButton:pressed {
-                background-color: #0D47A1;
-            }
-        """)
-        test_button_layout.addWidget(self.test_step_by_step_button)
-        
-        self.test_all_button = QPushButton("Test All Positions")
-        self.test_all_button.clicked.connect(self.test_all_positions)
-        test_button_layout.addWidget(self.test_all_button)
-        
-        testing_layout.addLayout(test_button_layout)
-        
-        # Step execution controls
-        step_control_layout = QHBoxLayout()
-        
-        self.reset_display_button = QPushButton("Reset Display")
-        self.reset_display_button.clicked.connect(self.reset_world_display)
-        step_control_layout.addWidget(self.reset_display_button)
-        
-        step_control_layout.addWidget(QLabel("Speed:"))
-        self.speed_slider = QSpinBox()
-        self.speed_slider.setRange(50, 2000)
-        self.speed_slider.setValue(500)
-        self.speed_slider.setSuffix(" ms")
-        step_control_layout.addWidget(self.speed_slider)
-        
-        self.pause_button = QPushButton("Pause")
-        self.pause_button.clicked.connect(self.toggle_step_execution)
-        self.pause_button.setEnabled(False)
-        step_control_layout.addWidget(self.pause_button)
-        
-        testing_layout.addLayout(step_control_layout)
-        
-        # Test results display
-        self.test_results_label = QLabel("No tests run")
-        self.test_results_label.setWordWrap(True)
-        self.test_results_label.setStyleSheet("padding: 10px; background-color: #1e1e1e; border-radius: 4px; max-height: 150px;")
-        self.test_results_label.setMaximumHeight(150)
-        testing_layout.addWidget(self.test_results_label)
-        
-        layout.addWidget(testing_group)
+        # Position testing section - REMOVED FOR SIMPLICITY
+        # # testing_group = QGroupBox("Position Testing")
+        # testing_layout = QVBoxLayout(testing_group)
+        #         # # Position controls
+        # position_layout = QHBoxLayout()
+        #         # position_layout.addWidget(QLabel("Start Position:"))
+        # self.pos_x_spin = QSpinBox()
+        # self.pos_x_spin.setRange(-10, 10)
+        # self.pos_x_spin.setValue(0)
+        # position_layout.addWidget(QLabel("X:"))
+        # position_layout.addWidget(self.pos_x_spin)
+        #         # self.pos_y_spin = QSpinBox()
+        # self.pos_y_spin.setRange(-10, 10)
+        # self.pos_y_spin.setValue(0)
+        # position_layout.addWidget(QLabel("Y:"))
+        # position_layout.addWidget(self.pos_y_spin)
+        #         # position_layout.addWidget(QLabel("Direction:"))
+        # self.direction_combo = QComboBox()
+        # self.direction_combo.addItems(["North (0)", "East (1)", "South (2)", "West (3)"])
+        # position_layout.addWidget(self.direction_combo)
+        #         # testing_layout.addLayout(position_layout)
+        #         # # Testing buttons
+        # test_button_layout = QHBoxLayout()
+        #         # self.test_position_button = QPushButton("Test Position")
+        # self.test_position_button.clicked.connect(self.test_single_position)
+        # test_button_layout.addWidget(self.test_position_button)
+        #         # self.test_step_by_step_button = QPushButton("Step-by-Step Test")
+        # self.test_step_by_step_button.clicked.connect(self.test_position_step_by_step)
+        # self.test_step_by_step_button.setStyleSheet("""
+        # QPushButton {
+        # background-color: #2196F3;
+        # color: white;
+        # border: none;
+        # padding: 8px;
+        # border-radius: 4px;
+        # font-weight: bold;
+        # }
+        # QPushButton:hover {
+        # background-color: #1976D2;
+        # }
+        # QPushButton:pressed {
+        # background-color: #0D47A1;
+        # }
+        # """)
+        # test_button_layout.addWidget(self.test_step_by_step_button)
+        #         # self.test_all_button = QPushButton("Test All Positions")
+        # self.test_all_button.clicked.connect(self.test_all_positions)
+        # test_button_layout.addWidget(self.test_all_button)
+        #         # testing_layout.addLayout(test_button_layout)
+        #         # # Step execution controls
+        # step_control_layout = QHBoxLayout()
+        #         # self.reset_display_button = QPushButton("Reset Display")
+        # self.reset_display_button.clicked.connect(self.reset_world_display)
+        # step_control_layout.addWidget(self.reset_display_button)
+        #         # step_control_layout.addWidget(QLabel("Speed:"))
+        # self.speed_slider = QSpinBox()
+        # self.speed_slider.setRange(50, 2000)
+        # self.speed_slider.setValue(500)
+        # self.speed_slider.setSuffix(" ms")
+        # step_control_layout.addWidget(self.speed_slider)
+        #         # self.pause_button = QPushButton("Pause")
+        # self.pause_button.clicked.connect(self.toggle_step_execution)
+        # self.pause_button.setEnabled(False)
+        # step_control_layout.addWidget(self.pause_button)
+        #         # testing_layout.addLayout(step_control_layout)
+        #         # # Test results display
+        # self.test_results_label = QLabel("No tests run")
+        # self.test_results_label.setWordWrap(True)
+        # self.test_results_label.setStyleSheet("padding: 10px; background-color: #1e1e1e; border-radius: 4px; max-height: 150px;")
+        # self.test_results_label.setMaximumHeight(150)
+        # testing_layout.addWidget(self.test_results_label)
+        #         #         layout.addWidget(testing_group)
         
         # Update analysis when program changes
         self.program_editor.textChanged.connect(self.update_analysis)
@@ -528,7 +511,7 @@ class VaultRunnerGUI(QMainWindow):
                 self.current_challenge = challenge
                 self.challenge_description.setText(f"<b>{challenge.name}</b><br>{challenge.description}")
                 self.update_world_display()
-                self._update_position_defaults(challenge_name)
+                # self._update_position_defaults(challenge_name)  # Position testing removed
                 break
                 
     def _update_position_defaults(self, challenge_name: str):
@@ -538,7 +521,7 @@ class VaultRunnerGUI(QMainWindow):
             self.pos_x_spin.setValue(0)
             self.pos_y_spin.setValue(0)
             self.direction_combo.setCurrentIndex(1)  # East
-        elif challenge_name in ["Extension Challenge", "Multi-Key Mystery"]:
+        elif challenge_name in ["Extension Challenge"]:
             # Multi-key challenge - set to center
             self.pos_x_spin.setValue(2)
             self.pos_y_spin.setValue(2)
@@ -902,9 +885,9 @@ class VaultRunnerGUI(QMainWindow):
             # Start step execution
             self.step_execution_active = True
             self.step_paused = False
-            self.pause_button.setEnabled(True)
-            self.pause_button.setText("Pause")
-            self.test_step_by_step_button.setEnabled(False)
+            # self.pause_button.setEnabled(True)  # Position testing removed
+            # self.pause_button.setText("Pause")  # Position testing removed
+            # self.test_step_by_step_button.setEnabled(False)  # Position testing removed
             
             # Update display with initial state
             self.world_display.update_world(world, self.step_runner)
@@ -920,7 +903,7 @@ class VaultRunnerGUI(QMainWindow):
             self.test_results_label.setText(f"<b>Step-by-Step Execution</b><br>Starting at ({test_x}, {test_y}), direction {test_dir}<br>Instructions executed: 0<br>Program length: {len(program_lines)} lines{challenge_info}")
             
             # Start the step timer
-            self.step_timer.start(self.speed_slider.value())
+            # self.step_timer.start(self.speed_slider.value())  # Position testing removed
             
         except Exception as e:
             QMessageBox.critical(self, "Step Execution Error", f"Error starting step execution: {str(e)}")
@@ -999,8 +982,8 @@ class VaultRunnerGUI(QMainWindow):
                 return
             
             # Update the timer interval if speed changed
-            if self.step_timer.interval() != self.speed_slider.value():
-                self.step_timer.start(self.speed_slider.value())
+            # if self.step_timer.interval() != self.speed_slider.value():  # Position testing removed
+                # self.step_timer.start(self.speed_slider.value())  # Position testing removed
             
             # Update status
             escape_status = " - ESCAPED!" if self.step_runner.escaped else ""
@@ -1068,22 +1051,22 @@ class VaultRunnerGUI(QMainWindow):
             
         self.step_paused = not self.step_paused
         if self.step_paused:
-            self.step_timer.stop()
-            self.pause_button.setText("Resume")
+            # self.step_timer.stop()  # Position testing removed
+            # self.pause_button.setText("Resume")  # Position testing removed
             self.status_label.setText("Step execution paused")
         else:
-            self.step_timer.start(self.speed_slider.value())
-            self.pause_button.setText("Pause")
+            # self.step_timer.start(self.speed_slider.value())  # Position testing removed
+            # self.pause_button.setText("Pause")  # Position testing removed
             self.status_label.setText("Step execution resumed")
 
     def stop_step_execution(self):
         """Stop the step-by-step execution."""
         self.step_execution_active = False
         self.step_paused = False
-        self.step_timer.stop()
-        self.pause_button.setEnabled(False)
-        self.pause_button.setText("Pause")
-        self.test_step_by_step_button.setEnabled(True)
+        # self.step_timer.stop()  # Position testing removed
+        # self.pause_button.setEnabled(False)  # Position testing removed
+        # self.pause_button.setText("Pause")  # Position testing removed
+        # self.test_step_by_step_button.setEnabled(True)  # Position testing removed
         self.step_interpreter = None
         self.step_runner = None
 
@@ -1163,7 +1146,7 @@ class VaultRunnerGUI(QMainWindow):
         challenge_name = self.current_challenge.name
         if challenge_name in ["Door Master"]:
             return create_corridor_world
-        elif challenge_name in ["Extension Challenge", "Multi-Key Mystery"]:
+        elif challenge_name in ["Extension Challenge"]:
             return create_multi_key_world
         else:
             return create_room_world

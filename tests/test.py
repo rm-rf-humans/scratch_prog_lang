@@ -390,7 +390,7 @@ class TestGameFeatures(unittest.TestCase):
     def test_game_creation(self):
         """Test game creation and initialization."""
         game = VaultRunnerGame()
-        self.assertEqual(len(game.challenges), 6)
+        self.assertEqual(len(game.challenges), 4)
         self.assertEqual(game.player_name, "Player")
         self.assertEqual(len(game.score_history), 0)
 

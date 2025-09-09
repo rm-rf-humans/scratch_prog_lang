@@ -151,7 +151,7 @@ class VaultInterpreter:
                 self.execution_history.append(step_info)
                 
                 if self.debug_mode:
-                    print(f"PC: {self.pc:3d}, Token: {token:6s}, Pos: ({self.runner.x}, {self.runner.y}), Dir: {self.runner.direction}")
+                    print(f"PC: {self.pc:3d}, Token: {str(token):6s}, Pos: ({self.runner.x}, {self.runner.y}), Dir: {self.runner.direction}")
                 
                 # Execute the current instruction
                 old_pc = self.pc
