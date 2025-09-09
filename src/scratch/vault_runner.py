@@ -145,7 +145,7 @@ class VaultRunner:
         return self.escaped
     
     def display_world(self, show_robot=True):
-        """Display the current world state with robot position."""
+        """Display the current world state with robot position"""
         print(f"\n=== World State ===")
         print(f"Robot at ({self.x}, {self.y}) facing {['North', 'East', 'South', 'West'][self.direction]}")
         print(f"Has key: {self.has_key}, Door opened: {self.door_opened}, Escaped: {self.escaped}")
