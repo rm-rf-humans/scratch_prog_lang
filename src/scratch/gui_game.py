@@ -600,6 +600,25 @@ LEFT"""
 MOVE
 MOVE
 PICK"""
+        elif self.current_challenge.name == "Door Master":
+            sample_program = """# Door Master - Corridor Navigation (Program 1)
+# Navigate twisting corridor with unknown start position/direction
+# Strategy: Systematic exploration - move until blocked, turn right, repeat
+LOOP 4
+  WHILE FRONT
+    MOVE
+    IF KEY
+      PICK
+    END
+    IF DOOR
+      OPEN
+    END
+    IF EXIT
+      MOVE
+    END
+  END
+  RIGHT
+END"""
         else:
             sample_program = """# Sample Program
 # Basic movement example
