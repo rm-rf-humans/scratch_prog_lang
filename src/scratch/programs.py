@@ -1,6 +1,6 @@
 program1_corridor = [
     # Navigate twisting corridor using SYSTEMATIC EXPLORATION
-    # Strategy: Explore each direction fully, then backtrack by reversing
+    # Strategy:- Explore each direction fully, then backtrack by reversing
     # Uses multiple exploration attempts to handle unknown start position
     
     # Phase 1: Try moving forward in current direction
