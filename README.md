@@ -312,9 +312,3 @@ python -m mypy src/
 ##  License
 
 MIT License - see [LICENSE](LICENSE) file for details.
-
-##  Acknowledgments
-
-- Inspired by educational programming languages
-- Built for learning and experimentation
-- Designed with simplicity and extensibility in mind
