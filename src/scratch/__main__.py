@@ -111,9 +111,9 @@ def demo_corridor_program():
     
     print(f"\n{'SUCCESS!' if result else 'FAILED!'}")
     if result:
-        print("✓ Robot successfully escaped from the corridor!")
+        print("SUCCESS: Robot successfully escaped from the corridor!")
     else:
-        print("✗ Robot failed to escape. Check the program logic.")
+        print("FAILED: Robot failed to escape. Check the program logic.")
 
 
 def demo_room_program():
@@ -155,7 +155,7 @@ def demo_room_program():
     
     print(f"\n{'SUCCESS!' if result else 'COMPLETED'}")
     if result:
-        print("✓ Robot successfully escaped from the room!")
+        print("SUCCESS: Robot successfully escaped from the room!")
     else:
         print("◦ Robot completed exploration (may not have found exit)")
 

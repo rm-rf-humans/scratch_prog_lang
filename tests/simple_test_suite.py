@@ -54,7 +54,7 @@ class SimpleTestSuite(unittest.TestCase):
         self.assertTrue(runner.check_escape())
         self.assertTrue(runner.escaped)
         
-        print("✅ Basic robot functionality works correctly")
+        print("PASS: Basic robot functionality works correctly")
     
     def test_2_door_master_challenge(self):
         """Test Case 2: Door Master challenge with optimal starting position."""
@@ -76,7 +76,7 @@ class SimpleTestSuite(unittest.TestCase):
         self.assertTrue(runner.door_opened, "Robot should have opened the door")
         self.assertLess(interpreter.instruction_count, 2000, "Should complete within instruction limit")
         
-        print(f"✅ Door Master challenge completed successfully in {interpreter.instruction_count} steps")
+        print(f"PASS: Door Master challenge completed successfully in {interpreter.instruction_count} steps")
         print(f"   Final position: ({runner.x}, {runner.y})")
         print(f"   Escape method: {'door' if runner.door_opened else 'exit'}")
     
@@ -98,7 +98,7 @@ class SimpleTestSuite(unittest.TestCase):
         self.assertTrue(runner.escaped, "Robot should have escaped")
         self.assertLess(interpreter.instruction_count, 1000, "Should complete within instruction limit")
         
-        print(f"✅ Room Explorer challenge completed successfully in {interpreter.instruction_count} steps")
+        print(f"PASS: Room Explorer challenge completed successfully in {interpreter.instruction_count} steps")
         print(f"   Final position: ({runner.x}, {runner.y})")
         print(f"   Used BFS algorithm for optimal pathfinding")
 
@@ -117,13 +117,13 @@ def run_simple_tests():
     # Summary
     print("\n" + "=" * 50)
     if result.wasSuccessful():
-        print("🎉 ALL 3 TEST CASES PASSED!")
-        print("✅ Basic robot functionality works")
-        print("✅ Door Master challenge succeeds from optimal position")
-        print("✅ Room Explorer challenge succeeds with BFS algorithm")
+        print("ALL 3 TEST CASES PASSED!")
+        print("PASS: Basic robot functionality works")
+        print("PASS: Door Master challenge succeeds from optimal position")
+        print("PASS: Room Explorer challenge succeeds with BFS algorithm")
         print("\nThe Vault Runner language implementation is working correctly!")
     else:
-        print("❌ Some tests failed:")
+        print("Some tests failed:")
         for failure in result.failures:
             print(f"   FAIL: {failure[0]}")
         for error in result.errors:
