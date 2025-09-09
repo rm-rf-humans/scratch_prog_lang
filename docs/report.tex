@@ -1,0 +1,181 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\geometry{margin=1in}
+
+\lstdefinelanguage{vault}{
+  morekeywords={MOVE,LEFT,RIGHT,RTURN,PICK,OPEN,LOOP,END,IF,WHILE,FRONT,KEY,DOOR,EXIT,SET,CLR,WAIT,MARK,GOTO,SCAN,COUNT,SAVE,LOAD},
+  sensitive=true,
+  morecomment=[l]{#}
+}
+
+\lstset{
+  basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries\color{blue!60!black},
+  commentstyle=\itshape\color{gray!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  stepnumber=1,
+  numbersep=8pt,
+  frame=single,
+  showstringspaces=false,
+  columns=fullflexible,
+  keepspaces=true
+}
+
+\title{AI1030 Group Assignment 1\\The Vault Runner Programming Language}
+\author{Vault Runner Team}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section*{Abstract}
+Vault Runner is a compact educational language for controlling a robot (Runner) in a 2D grid vault. It emphasizes clear control flow, sensor-driven decisions, and a strict alphabet constraint (\(\leq\) 20 distinct tokens). This report presents the language specification, examples with token counts, and a reflection on design trade-offs under the assignment constraints. A reference interpreter, a CLI, an interactive game (terminal and GUI), and optional extensions are implemented in Python.
+
+\section{Language Specification}
+\subsection{Purpose}
+Teach core programming concepts (sequencing, conditionals, loops, state) in a constrained, visually grounded environment. Programs should be readable by beginners and map directly to robot actions.
+
+\subsection{Token Set (Core, \(\leq\) 20)}
+\begin{itemize}[noitemsep]
+  \item Movement: \texttt{MOVE}, \texttt{LEFT}, \texttt{RIGHT}, \texttt{RTURN}
+  \item Actions: \texttt{PICK}, \texttt{OPEN}
+  \item Control Flow: \texttt{LOOP} \textit{n}, \texttt{IF} \textit{sensor}, \texttt{WHILE} \textit{sensor}, \texttt{END}
+  \item Sensors: \texttt{FRONT}, \texttt{KEY}, \texttt{DOOR}, \texttt{EXIT}
+  \item State: \texttt{SET}, \texttt{CLR}
+\end{itemize}
+Total distinct core tokens: \textbf{16} (under the 20-token limit). Single integer literals are allowed for \texttt{LOOP n}. Comments start with \texttt{\#} until end of line.
+
+\paragraph{Optional Extensions (not part of the core 16):} \texttt{WAIT}, \texttt{MARK}, \texttt{GOTO}, \texttt{SCAN}, \texttt{COUNT}, \texttt{SAVE}, \texttt{LOAD}. When used, the extended interpreter is auto-selected.
+
+\subsection{Grammar (Informal)}
+\begin{verbatim}
+Program    ::= Stmt*
+Stmt       ::= MOVE | LEFT | RIGHT | RTURN | PICK | OPEN
+            |  LOOP Number Stmt* END
+            |  IF Sensor Stmt* END
+            |  WHILE Sensor Stmt* END
+            |  SET | CLR
+Sensor     ::= FRONT | KEY | DOOR | EXIT
+Number     ::= Non-negative integer (base 10)
+Comment    ::= '#' <any until end-of-line>
+\end{verbatim}
+
+Indentation in examples is for readability only; the interpreter is whitespace-insensitive beyond token separation.
+
+\subsection{Semantics}
+\begin{itemize}[noitemsep]
+  \item \textbf{MOVE}: advance one tile if not blocked by a wall.
+  \item \textbf{LEFT}/\textbf{RIGHT}: rotate 90° counter/clockwise. \textbf{RTURN}: randomly turn left or right.
+  \item \textbf{PICK}: pick up a key when on a key tile (core). In the extension challenge, only the designated correct key opens the door.
+  \item \textbf{OPEN}: open a door if at door and carrying the (correct) key; the door becomes passable.
+  \item \textbf{IF}/\textbf{WHILE}: evaluate the given sensor (\texttt{FRONT}, \texttt{KEY}, \texttt{DOOR}, \texttt{EXIT}) at the start of the block/iteration.
+  \item \textbf{LOOP n}: execute the block exactly \textit{n} times (no loop variable).
+  \item \textbf{SET}/\textbf{CLR}: manipulate a single boolean flag (the only internal state beyond the world and position). The base interpreter exposes the flag for future strategies; examples do not require it.
+  \item \textbf{Escape}: success occurs when the robot reaches an \texttt{EXIT} tile, or passes through an opened \texttt{DOOR}. In the Extension Challenge, success is restricted to escaping \emph{through the door} after picking the correct key.
+\end{itemize}
+
+\subsection{Error Model}
+\begin{itemize}[noitemsep]
+  \item Invalid token: \texttt{SyntaxError("Invalid token 'X' on line k")}
+  \item Too many distinct tokens: \texttt{SyntaxError("Too many distinct tokens: m (max 20 allowed)")}
+  \item Unmatched control: \texttt{SyntaxError("Unmatched LOOP/IF/WHILE - missing END")}.
+  \item Runtime protection: maximum-instruction safety limit to halt infinite loops.
+\end{itemize}
+
+\section{Examples}
+Token counts reflect distinct core tokens used per program (\(\leq\) 20).
+
+\subsection{Minimal Program}
+\begin{lstlisting}[language=vault,caption={Move and attempt to pick a key}]
+MOVE
+IF KEY
+  PICK
+END
+RIGHT
+MOVE
+\end{lstlisting}
+\textbf{Distinct tokens:} \{MOVE, IF, KEY, PICK, END, RIGHT\} = 6.
+
+\subsection{Corridor Navigation (Unknown Start/Direction)}
+\begin{lstlisting}[language=vault,caption={Navigate twisting corridor; exit or door}]
+WHILE FRONT
+  MOVE
+  IF KEY
+    PICK
+  END
+  IF DOOR
+    OPEN
+  END
+END
+\end{lstlisting}
+\textbf{Distinct tokens:} \{WHILE, FRONT, MOVE, IF, KEY, PICK, END, DOOR, OPEN\} = 9.
+
+\subsection{Room: Key--Door--Exit (Lower-left start, facing North)}
+\begin{lstlisting}[language=vault,caption={Collect key, open door, or exit if closer}]
+LOOP 3
+  MOVE
+END
+RIGHT
+WHILE FRONT
+  MOVE
+END
+IF KEY
+  PICK
+END
+IF DOOR
+  OPEN
+END
+\end{lstlisting}
+\textbf{Distinct tokens:} \{LOOP, MOVE, END, RIGHT, WHILE, FRONT, IF, KEY, PICK, DOOR, OPEN\} = 11.
+
+\subsection{Extension Challenge (Multiple Keys; Door-only Success)}
+\begin{lstlisting}[language=vault,caption={Systematic exploration then door escape}]
+# Explore rows
+LOOP 3
+  WHILE FRONT
+    MOVE
+  END
+  RIGHT
+  RIGHT
+END
+
+# Key handling (only one correct key opens the door)
+IF KEY
+  PICK
+END
+
+# Approach the door and open
+WHILE FRONT
+  MOVE
+END
+IF DOOR
+  OPEN
+END
+\end{lstlisting}
+\textbf{Distinct tokens:} stays within the 20-token limit. In the provided game, success requires \emph{escaping through the door}; exiting via \texttt{EXIT} does not count for this challenge.
+
+\section{Reflection (\textit{300--500 words})}
+Designing Vault Runner under the assignment’s constraints centered on simplicity, clarity, and enforceable limits. The most influential constraint was the 20-token alphabet. We selected 16 core tokens that cover locomotion, interaction, sensing, and control flow. The set avoids syntactic sugar and higher-level constructs that would add power at the cost of learnability or token budget. For example, we chose a \texttt{LOOP n} without a loop variable rather than a general \texttt{for}-loop, since the pedagogical goal is to practice repetition rather than iteration over data structures.
+
+Restricting state to a single boolean flag shaped both the interpreter and example programs. Many navigation problems are solvable with reactive sensor logic (\texttt{WHILE FRONT} / \texttt{IF KEY}) and do not require complex memory. The presence of \texttt{SET}/\texttt{CLR} keeps the door open to strategies like “remember that I saw a door” while preventing uncontrolled state growth. In practice, most beginner-friendly solutions did not need the flag; its main role is to demonstrate the minimal notion of state in the language and to support extensions.
+
+We adopted block-structured control with mandatory \texttt{END}, which simplifies parsing and nesting. This enabled an interpreter architecture with tokenization, a program counter, and a small call stack for matching blocks—close to the supplement’s simple interpreter loop while robust enough to deliver helpful syntax errors (invalid tokens, unmatched blocks, token-limit violations). Comments (\texttt{\#}) were added to improve readability without impacting the token budget.
+
+Semantics are intentionally concrete: movement and sensing map 1:1 to the robot API. This directness shortens the distance from code to behavior and makes step-by-step visualization meaningful in both the terminal and GUI. The environment model (rectangular room with walls; floor, key, door, exit) reflects the brief and ensures that simple strategies remain effective. A key design nuance is that the assignment permits exiting via an \texttt{EXIT} tile as a valid shortcut. Our implementation respects this globally, but the Extension Challenge explicitly requires escaping \emph{through the door} after obtaining the correct key. This variation emphasizes goal conditioning and validates the optional special-key rule in an authentic task.
+
+Finally, we balanced minimalism with extensibility. Optional extended commands (e.g., \texttt{MARK}/\texttt{GOTO}, \texttt{WAIT}, \texttt{SAVE}/\texttt{LOAD}) are isolated from the core. Programs that use extensions are automatically routed to the extended interpreter; core programs remain within the 16-token budget and the simpler semantics. This separation preserves the spirit of the constraints while showcasing how a compact core can scale to richer problem-solving when appropriate. Overall, the constraints led to a concise, teachable language with a clear execution model and strong alignment between specification, implementation, and pedagogy.
+
+\section*{Professional Notes}
+Complete source, interpreter, CLI, tests, and GUI are available in the repository. The README includes a minimal list-of-strings example (per supplement), installation instructions, and game usage. Token-limit enforcement and error messages are implemented and tested.
+
+\end{document}
+
+
