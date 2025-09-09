@@ -965,9 +965,6 @@ class VaultRunnerGUI(QMainWindow):
                 # The _execute_instruction method handles control flow PC changes internally
                 self.step_interpreter.pc += 1
                 
-                # Check escape status after each instruction (like the normal run loop)
-                self.step_runner.check_escape()
-                
                 # Update the world display after each instruction
                 self.update_step_display()
                 
@@ -986,22 +983,16 @@ class VaultRunnerGUI(QMainWindow):
             
             # Update status
             escape_status = " - ESCAPED!" if self.step_runner.escaped else ""
-            direction_names = ["North", "East", "South", "West"]
-            direction_name = direction_names[self.step_runner.direction] if 0 <= self.step_runner.direction < 4 else "Unknown"
-            self.status_label.setText(f"Executed: {current_token} | Position: ({self.step_runner.x}, {self.step_runner.y}) facing {direction_name}{escape_status}")
+            self.status_label.setText(f"Executed: {current_token} | Position: ({self.step_runner.x}, {self.step_runner.y}){escape_status}")
             
             # Update results display
             escape_via = getattr(self.step_runner, 'escape_via', 'none')
-            call_stack_info = f"{len(self.step_interpreter.call_stack)} levels" if self.step_interpreter.call_stack else "empty"
-            
             results_html = f"""
 <b>Step-by-Step Execution</b><br>
 <b>Current Position:</b> ({self.step_runner.x}, {self.step_runner.y})<br>
-<b>Direction:</b> {direction_name} ({self.step_runner.direction})<br>
+<b>Direction:</b> {self.step_runner.direction}<br>
 <b>Instructions Executed:</b> {self.step_interpreter.instruction_count}<br>
-<b>Program Counter:</b> {self.step_interpreter.pc}<br>
 <b>Current Instruction:</b> {current_token}<br>
-<b>Call Stack:</b> {call_stack_info}<br>
 <b>Has Key:</b> {self.step_runner.has_key}<br>
 <b>Door Opened:</b> {self.step_runner.door_opened}<br>
 <b>Escaped:</b> {self.step_runner.escaped}<br>
