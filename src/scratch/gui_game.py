@@ -384,6 +384,59 @@ class VaultRunnerGUI(QMainWindow):
         
         layout.addWidget(analysis_group)
         
+        # Position testing section
+        testing_group = QGroupBox("Position Testing")
+        testing_layout = QVBoxLayout(testing_group)
+        
+        # Position controls
+        position_layout = QHBoxLayout()
+        
+        position_layout.addWidget(QLabel("Start Position:"))
+        self.pos_x_spin = QSpinBox()
+        self.pos_x_spin.setRange(-10, 10)
+        self.pos_x_spin.setValue(0)
+        position_layout.addWidget(QLabel("X:"))
+        position_layout.addWidget(self.pos_x_spin)
+        
+        self.pos_y_spin = QSpinBox()
+        self.pos_y_spin.setRange(-10, 10)
+        self.pos_y_spin.setValue(0)
+        position_layout.addWidget(QLabel("Y:"))
+        position_layout.addWidget(self.pos_y_spin)
+        
+        position_layout.addWidget(QLabel("Direction:"))
+        self.direction_combo = QComboBox()
+        self.direction_combo.addItems(["North (0)", "East (1)", "South (2)", "West (3)"])
+        position_layout.addWidget(self.direction_combo)
+        
+        testing_layout.addLayout(position_layout)
+        
+        # Testing buttons
+        test_button_layout = QHBoxLayout()
+        
+        self.test_position_button = QPushButton("Test Position")
+        self.test_position_button.clicked.connect(self.test_single_position)
+        test_button_layout.addWidget(self.test_position_button)
+        
+        self.test_all_button = QPushButton("Test All Positions")
+        self.test_all_button.clicked.connect(self.test_all_positions)
+        test_button_layout.addWidget(self.test_all_button)
+        
+        self.reset_display_button = QPushButton("Reset Display")
+        self.reset_display_button.clicked.connect(self.reset_world_display)
+        test_button_layout.addWidget(self.reset_display_button)
+        
+        testing_layout.addLayout(test_button_layout)
+        
+        # Test results display
+        self.test_results_label = QLabel("No tests run")
+        self.test_results_label.setWordWrap(True)
+        self.test_results_label.setStyleSheet("padding: 10px; background-color: #1e1e1e; border-radius: 4px; max-height: 150px;")
+        self.test_results_label.setMaximumHeight(150)
+        testing_layout.addWidget(self.test_results_label)
+        
+        layout.addWidget(testing_group)
+        
         # Update analysis when program changes
         self.program_editor.textChanged.connect(self.update_analysis)
         
@@ -430,7 +483,26 @@ class VaultRunnerGUI(QMainWindow):
                 self.current_challenge = challenge
                 self.challenge_description.setText(f"<b>{challenge.name}</b><br>{challenge.description}")
                 self.update_world_display()
+                self._update_position_defaults(challenge_name)
                 break
+                
+    def _update_position_defaults(self, challenge_name: str):
+        """Update position control defaults based on challenge."""
+        if challenge_name == "Door Master":
+            # Corridor challenge - set to a corner position
+            self.pos_x_spin.setValue(0)
+            self.pos_y_spin.setValue(0)
+            self.direction_combo.setCurrentIndex(1)  # East
+        elif challenge_name in ["Extension Challenge", "Multi-Key Mystery"]:
+            # Multi-key challenge - set to center
+            self.pos_x_spin.setValue(2)
+            self.pos_y_spin.setValue(2)
+            self.direction_combo.setCurrentIndex(0)  # North
+        else:
+            # Default room challenge - lower-left corner
+            self.pos_x_spin.setValue(0)
+            self.pos_y_spin.setValue(0)
+            self.direction_combo.setCurrentIndex(0)  # North
     
     def select_extension_challenge(self):
         """Select the Extension Challenge and show special info."""
@@ -594,6 +666,211 @@ class VaultRunnerGUI(QMainWindow):
         """Clear the program editor."""
         self.program_editor.clear()
         
+    def reset_world_display(self):
+        """Reset the world display to the default challenge state."""
+        self.update_world_display()
+        self.test_results_label.setText("World display reset to default challenge state")
+        self.status_label.setText("World display reset")
+        
+    def test_single_position(self):
+        """Test the current program from a specific position and direction."""
+        if not self.current_challenge:
+            QMessageBox.warning(self, "No Challenge", "Please select a challenge first.")
+            return
+            
+        program_text = self.program_editor.toPlainText().strip()
+        if not program_text:
+            QMessageBox.warning(self, "No Program", "Please enter a program to test.")
+            return
+            
+        # Get test position and direction
+        test_x = self.pos_x_spin.value()
+        test_y = self.pos_y_spin.value()
+        test_dir = self.direction_combo.currentIndex()
+        
+        self.status_label.setText(f"Testing position ({test_x}, {test_y}), direction {test_dir}...")
+        
+        try:
+            # Run the test and get the final runner state
+            result, final_runner = self._run_position_test_with_display(program_text, test_x, test_y, test_dir)
+            
+            # Update the world display with the final state
+            if final_runner:
+                world_creator = self._get_world_creator()
+                world = world_creator()
+                self.world_display.update_world(world, final_runner)
+            
+            # Display results
+            success_text = "SUCCESS" if result['success'] else "FAILED"
+            color = "#4CAF50" if result['success'] else "#f44336"
+            
+            results_html = f"""
+<b style="color: {color};">Position Test: {success_text}</b><br>
+<b>Start Position:</b> ({test_x}, {test_y}), Direction: {test_dir}<br>
+<b>Final Position:</b> {result.get('final_position', 'N/A')}<br>
+<b>Instructions:</b> {result.get('instructions', 'N/A')}<br>
+<b>Time:</b> {result.get('time', 0):.2f}s<br>
+<b>Has Key:</b> {result.get('has_key', False)}<br>
+<b>Door Opened:</b> {result.get('door_opened', False)}<br>
+<b>Escape Via:</b> {result.get('escape_via', 'none')}
+            """.strip()
+            
+            if 'error' in result:
+                results_html += f"<br><b>Error:</b> {result['error']}"
+                
+            self.test_results_label.setText(results_html)
+            self.status_label.setText("Position test completed - see world display")
+            
+        except Exception as e:
+            QMessageBox.critical(self, "Test Error", f"Error running position test: {str(e)}")
+            self.status_label.setText("Position test failed")
+
+    def test_all_positions(self):
+        """Test the current program from all valid positions and directions."""
+        if not self.current_challenge:
+            QMessageBox.warning(self, "No Challenge", "Please select a challenge first.")
+            return
+            
+        program_text = self.program_editor.toPlainText().strip()
+        if not program_text:
+            QMessageBox.warning(self, "No Program", "Please enter a program to test.")
+            return
+            
+        self.status_label.setText("Running comprehensive position tests...")
+        self.test_results_label.setText("Testing all positions...")
+        
+        try:
+            # Get all valid positions for the current challenge
+            world_creator = self._get_world_creator()
+            world = world_creator()
+            
+            # Find all valid floor positions
+            valid_positions = []
+            for pos, tile in world.items():
+                if tile in ['floor', 'key', 'door', 'exit']:
+                    valid_positions.append(pos)
+            
+            # Test all combinations
+            total_tests = len(valid_positions) * 4  # 4 directions
+            successes = 0
+            failures = []
+            
+            for i, pos in enumerate(valid_positions):
+                for direction in range(4):
+                    result = self._run_position_test(program_text, pos[0], pos[1], direction)
+                    if result['success']:
+                        successes += 1
+                    else:
+                        failures.append((pos, direction, result.get('error', 'Failed')))
+            
+            # Display comprehensive results
+            success_rate = (successes / total_tests) * 100 if total_tests > 0 else 0
+            color = "#4CAF50" if success_rate >= 80 else "#FFC107" if success_rate >= 50 else "#f44336"
+            
+            results_html = f"""
+<b style="color: {color};">Comprehensive Test Results</b><br>
+<b>Success Rate:</b> {successes}/{total_tests} ({success_rate:.1f}%)<br>
+<b>Valid Positions Tested:</b> {len(valid_positions)}<br>
+<b>Directions per Position:</b> 4<br>
+            """.strip()
+            
+            if failures and len(failures) <= 5:
+                results_html += "<br><b>Failed Cases:</b><br>"
+                for pos, direction, error in failures:
+                    results_html += f"• {pos} dir {direction}: {error}<br>"
+            elif failures:
+                results_html += f"<br><b>Failed Cases:</b> {len(failures)} (showing first 3)<br>"
+                for pos, direction, error in failures[:3]:
+                    results_html += f"• {pos} dir {direction}: {error}<br>"
+                    
+            self.test_results_label.setText(results_html)
+            self.status_label.setText(f"All position tests completed: {success_rate:.1f}% success rate")
+            
+        except Exception as e:
+            QMessageBox.critical(self, "Test Error", f"Error running comprehensive tests: {str(e)}")
+            self.status_label.setText("Comprehensive test failed")
+
+    def _run_position_test(self, program_text: str, x: int, y: int, direction: int) -> dict:
+        """Run a single position test and return results."""
+        result, _ = self._run_position_test_with_display(program_text, x, y, direction)
+        return result
+
+    def _run_position_test_with_display(self, program_text: str, x: int, y: int, direction: int) -> tuple:
+        """Run a single position test and return results plus final runner state."""
+        try:
+            # Parse program
+            program_lines = [line.strip() for line in program_text.split('\n') 
+                           if line.strip() and not line.strip().startswith('#')]
+            
+            interpreter = VaultInterpreter(program_lines)
+            interpreter.max_instructions = 1000  # Reasonable limit for testing
+            
+            # Create world and runner
+            world_creator = self._get_world_creator()
+            world = world_creator()
+            
+            # Handle special cases for Extension Challenge
+            if self.current_challenge.name == "Extension Challenge":
+                import random
+                # For extension challenge, use random position if requested position is invalid
+                valid_positions = [(x, y) for x in range(4) for y in range(4)]
+                if (x, y) not in valid_positions:
+                    x, y = random.choice(valid_positions)
+                runner = VaultRunner(world, (x, y), direction)
+                runner.correct_key_pos = (1, 3)  # Set correct key position
+            else:
+                runner = VaultRunner(world, (x, y), direction)
+            
+            # Run the program
+            start_time = time.time()
+            result = interpreter.run(runner, show_steps=False)
+            end_time = time.time()
+            
+            # Determine success based on challenge
+            success = False
+            if self.current_challenge.name == "Extension Challenge":
+                success = runner.escaped and getattr(runner, 'escape_via', '') == 'door'
+            else:
+                success = runner.escaped
+                
+            result_dict = {
+                'success': success,
+                'instructions': interpreter.instruction_count,
+                'time': end_time - start_time,
+                'final_position': (runner.x, runner.y),
+                'has_key': runner.has_key,
+                'door_opened': runner.door_opened,
+                'escape_via': getattr(runner, 'escape_via', 'none')
+            }
+            
+            return result_dict, runner
+            
+        except Exception as e:
+            error_result = {
+                'success': False,
+                'error': str(e),
+                'instructions': 0,
+                'time': 0,
+                'final_position': (x, y),
+                'has_key': False,
+                'door_opened': False,
+                'escape_via': 'none'
+            }
+            return error_result, None
+
+    def _get_world_creator(self):
+        """Get the appropriate world creator for the current challenge."""
+        if not self.current_challenge:
+            return create_room_world
+            
+        challenge_name = self.current_challenge.name
+        if challenge_name in ["Door Master"]:
+            return create_corridor_world
+        elif challenge_name in ["Extension Challenge", "Multi-Key Mystery"]:
+            return create_multi_key_world
+        else:
+            return create_room_world
+
     def closeEvent(self, event):
         """Handle window close event."""
         if self.execution_thread and self.execution_thread.isRunning():
