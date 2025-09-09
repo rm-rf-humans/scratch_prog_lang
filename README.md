@@ -162,7 +162,7 @@ python -m scratch
 
 The Vault Runner Game includes:
 
-- **6 Progressive Challenges**: From basic movement to complex multi-key scenarios
+- **4 Progressive Challenges**: From basic movement to complex multi-key scenarios
 - **Scoring System**: Points based on efficiency, simplicity, and success
 - **Leaderboard**: Track your best scores
 - **Practice Mode**: Test programs without scoring
@@ -170,11 +170,9 @@ The Vault Runner Game includes:
 
 ### Challenge Types
 1. **First Steps**: Learn basic movement
-2. **Key Collector**: Find and collect keys
-3. **Door Master**: Open doors and escape
-4. **Room Explorer**: Navigate complex environments
-5. **Multi-Key Mystery**: Solve puzzles with multiple keys
-6. **Speed Run**: Optimize for efficiency
+2. **Door Master**: Open doors and escape
+3. **Room Explorer**: Navigate complex environments
+4. **Multi-Key Mystery**: Solve puzzles with multiple keys
 
 ##  Language Extensions
 
@@ -195,6 +193,12 @@ The Vault Runner Game includes:
 - **State Management**: Save and restore complete robot state
 
 ##  Testing
+
+### Run Simple Test Suite (3 Cases)
+```bash
+# Run focused test suite with only essential working test cases
+python3 tests/simple_test_suite.py
+```
 
 ### Run All Tests
 ```bash

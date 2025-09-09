@@ -470,9 +470,12 @@ def main():
     """Run all tests and benchmarks."""
     print("VAULT RUNNER PROGRAMMING LANGUAGE TEST SUITE")
     print("=" * 60)
+    print("\nNOTE: For a focused test suite, run: python3 tests/simple_test_suite.py")
+    print("      This runs only 3 essential working test cases as mentioned in documentation.")
+    print("=" * 60)
     
     # Run unit tests
-    print("\nRunning unit tests...")
+    print("\nRunning full unit tests...")
     unittest.main(argv=[''], verbosity=2, exit=False)
     
     # Run benchmarks
