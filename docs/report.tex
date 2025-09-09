@@ -31,7 +31,7 @@
 
 \title{AI1030 Group Assignment 1\\The Vault Runner Programming Language}
 \author{Vault Runner Team}
-\date{\today}
+\date{}
 
 \begin{document}
 \maketitle
@@ -78,7 +78,7 @@ Indentation in examples is for readability only; the interpreter is whitespace-i
   \item \textbf{OPEN}: open a door if at door and carrying the (correct) key; the door becomes passable.
   \item \textbf{IF}/\textbf{WHILE}: evaluate the given sensor (\texttt{FRONT}, \texttt{KEY}, \texttt{DOOR}, \texttt{EXIT}) at the start of the block/iteration.
   \item \textbf{LOOP n}: execute the block exactly \textit{n} times (no loop variable).
-  \item \textbf{SET}/\textbf{CLR}: manipulate a single boolean flag (the only internal state beyond the world and position). The base interpreter exposes the flag for future strategies; examples do not require it.
+  \item \textbf{SET}/\textbf{CLR}: manipulate a single boolean flag (the only internal state beyond the world and position). This fulfills the assignment constraint of "only literals, a single accumulator/flag" - meaning no variables, only direct values (numbers, keywords, sensors) and one piece of memory that can be True or False. The base interpreter exposes the flag for future strategies; examples do not require it.
   \item \textbf{Escape}: success occurs when the robot reaches an \texttt{EXIT} tile, or passes through an opened \texttt{DOOR}. In the Extension Challenge, success is restricted to escaping \emph{through the door} after picking the correct key.
 \end{itemize}
 
