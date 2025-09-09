@@ -1,22 +1,21 @@
 program1_corridor = [
-    "WHILE FRONT",
-    "  MOVE",
-    "  IF KEY", 
-    "    PICK",
+    # Navigate twisting corridor with unknown start position/direction
+    # Strategy: Systematic exploration - move until blocked, turn right, repeat
+    # This works from any starting position and direction in the corridor
+    "LOOP 4",
+    "  WHILE FRONT",
+    "    MOVE",
+    "    IF KEY",
+    "      PICK",
+    "    END",
+    "    IF DOOR",
+    "      OPEN",
+    "    END",
+    "    IF EXIT",
+    "      MOVE",
+    "    END",
     "  END",
-    "  IF DOOR",
-    "    OPEN", 
-    "  END",
-    "END",
-    "RIGHT",
-    "WHILE FRONT",
-    "  MOVE",
-    "  IF KEY",
-    "    PICK", 
-    "  END",
-    "  IF DOOR",
-    "    OPEN",
-    "  END", 
+    "  RIGHT",
     "END"
 ]
 
