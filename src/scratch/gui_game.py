@@ -69,7 +69,8 @@ class WorldDisplayWidget(QWidget):
         # Draw world cells
         for (x, y), cell_type in self.world.items():
             screen_x = offset_x + (x - min_x) * self.cell_size
-            screen_y = offset_y + (y - min_y) * self.cell_size
+            # Flip Y-axis so (0,0) appears at bottom-left instead of top-left
+            screen_y = offset_y + (max_y - y) * self.cell_size
             
             rect = QRect(screen_x, screen_y, self.cell_size, self.cell_size)
             
@@ -98,7 +99,8 @@ class WorldDisplayWidget(QWidget):
         # Draw robot
         if self.runner:
             robot_x = offset_x + (self.runner.x - min_x) * self.cell_size
-            robot_y = offset_y + (self.runner.y - min_y) * self.cell_size
+            # Flip Y-axis for robot position to match world coordinates
+            robot_y = offset_y + (max_y - self.runner.y) * self.cell_size
             
             robot_rect = QRect(robot_x + 2, robot_y + 2, self.cell_size - 4, self.cell_size - 4)
             painter.fillRect(robot_rect, QColor(255, 0, 0))  # Red robot
