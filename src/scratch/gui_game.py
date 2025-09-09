@@ -852,9 +852,19 @@ class VaultRunnerGUI(QMainWindow):
         self.stop_step_execution()
         
         # Get test position and direction
-        test_x = self.pos_x_spin.value()
-        test_y = self.pos_y_spin.value()
-        test_dir = self.direction_combo.currentIndex()
+        # For Room Explorer (BFS challenge), ensure we use bottom-left (0,0) facing North
+        if self.current_challenge.name == "Room Explorer":
+            test_x = 0  # Bottom-left X
+            test_y = 0  # Bottom-left Y  
+            test_dir = 0  # North
+            # Update the GUI controls to show correct values
+            self.pos_x_spin.setValue(test_x)
+            self.pos_y_spin.setValue(test_y)
+            self.direction_combo.setCurrentIndex(test_dir)
+        else:
+            test_x = self.pos_x_spin.value()
+            test_y = self.pos_y_spin.value()
+            test_dir = self.direction_combo.currentIndex()
         
         try:
             # Parse program
@@ -900,7 +910,14 @@ class VaultRunnerGUI(QMainWindow):
             self.world_display.update_world(world, self.step_runner)
             
             self.status_label.setText(f"Step-by-step execution started from ({test_x}, {test_y}), direction {test_dir}")
-            self.test_results_label.setText(f"<b>Step-by-Step Execution</b><br>Starting at ({test_x}, {test_y}), direction {test_dir}<br>Instructions executed: 0")
+            
+            # Enhanced status for BFS challenge
+            if self.current_challenge.name == "Room Explorer":
+                challenge_info = "<br><b>BFS Challenge:</b> Find shortest path to exit from bottom-left"
+            else:
+                challenge_info = ""
+                
+            self.test_results_label.setText(f"<b>Step-by-Step Execution</b><br>Starting at ({test_x}, {test_y}), direction {test_dir}<br>Instructions executed: 0<br>Program length: {len(program_lines)} lines{challenge_info}")
             
             # Start the step timer
             self.step_timer.start(self.speed_slider.value())
