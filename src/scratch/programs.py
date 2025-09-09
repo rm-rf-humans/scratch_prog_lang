@@ -1,33 +1,47 @@
 program1_corridor = [
-    # Navigate twisting corridor with unknown start position/direction  
-    # Two-phase strategy: 1) Move to end and get key, 2) Find vertical path
+    # Navigate twisting corridor using SYSTEMATIC EXPLORATION
+    # Strategy: Explore each direction fully, then backtrack by reversing
+    # Uses multiple exploration attempts to handle unknown start position
+    
+    # Phase 1: Try moving forward in current direction
     "WHILE FRONT",
     "  MOVE",
     "  IF KEY",
-    "    PICK", 
+    "    PICK",
     "  END",
-    "END",
-    "LEFT",
-    "WHILE FRONT",
-    "  MOVE",
     "  IF DOOR",
     "    OPEN",
     "    MOVE",
     "  END",
     "  IF EXIT",
-    "    MOVE", 
+    "    MOVE",
     "  END",
     "END",
-    "RIGHT",
-    "WHILE FRONT",
-    "  MOVE",
-    "  IF DOOR",
-    "    OPEN",
+    
+    # Phase 2: If not escaped, try other directions with backtracking
+    "LOOP 3",
+    "  RIGHT",
+    "  WHILE FRONT",
     "    MOVE",
-    "  END", 
-    "  IF EXIT",
+    "    IF KEY",
+    "      PICK",
+    "    END",
+    "    IF DOOR",
+    "      OPEN",
+    "      MOVE",
+    "    END",
+    "    IF EXIT",
+    "      MOVE",
+    "    END",
+    "  END",
+    "  # Backtrack by turning around and going back to wall",
+    "  LEFT",
+    "  LEFT",
+    "  WHILE FRONT",
     "    MOVE",
     "  END",
+    "  LEFT",
+    "  LEFT",
     "END"
 ]
 
