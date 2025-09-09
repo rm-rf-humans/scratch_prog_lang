@@ -20,10 +20,12 @@ try:
     from .interpreter import VaultInterpreter
     from .vault_runner import VaultRunner, create_corridor_world, create_room_world, create_multi_key_world
     from .game import VaultRunnerGame, GameChallenge
+    from .sample_programs import SamplePrograms
 except ImportError:
     from interpreter import VaultInterpreter
     from vault_runner import VaultRunner, create_corridor_world, create_room_world, create_multi_key_world
     from game import VaultRunnerGame, GameChallenge
+    from sample_programs import SamplePrograms
 
 
 class WorldDisplayWidget(QWidget):
@@ -491,153 +493,8 @@ class VaultRunnerGUI(QMainWindow):
             QMessageBox.warning(self, "No Challenge", "Please select a challenge first.")
             return
         
-        # Load different sample programs based on the challenge
-        if self.current_challenge.name == "Extension Challenge":
-            sample_program = """# Extension Challenge - A* Search Algorithm
-# This program implements A* pathfinding to solve the challenge optimally
-
-# Phase 1: A* Search with intelligent exploration
-# Start by orienting north
-LEFT
-LEFT
-LEFT
-LEFT
-
-# A* heuristic: Explore systematically to find all keys
-# Row 0: Check for keys (wrong keys at (0,0) and (3,0))
-MOVE
-IF KEY
-  PICK
-END
-MOVE
-MOVE
-IF KEY
-  PICK
-END
-
-# A* pathfinding: Move to next row efficiently
-LEFT
-LEFT
-MOVE
-MOVE
-MOVE
-RIGHT
-
-# Row 1: Check for keys
-MOVE
-MOVE
-MOVE
-
-# A* pathfinding: Move to next row efficiently
-LEFT
-LEFT
-MOVE
-MOVE
-MOVE
-RIGHT
-
-# Row 2: Check for keys
-MOVE
-MOVE
-MOVE
-
-# A* pathfinding: Move to next row efficiently
-LEFT
-LEFT
-MOVE
-MOVE
-MOVE
-RIGHT
-
-# Row 3: A* goal - find the correct key at (1,3)
-MOVE
-IF KEY
-  PICK
-END
-MOVE
-IF KEY
-  PICK
-END
-MOVE
-IF KEY
-  PICK
-END
-
-# Phase 2: A* Search for the door at (3,2)
-# A* heuristic: Calculate optimal path to door
-LEFT
-LEFT
-MOVE
-MOVE
-MOVE
-RIGHT
-MOVE
-RIGHT
-MOVE
-MOVE
-MOVE
-
-# Try to open the door with the correct key
-IF DOOR
-  OPEN
-END
-
-# Phase 3: A* Search for escape through the door
-IF DOOR
-  MOVE
-END"""
-        elif self.current_challenge.name == "First Steps":
-            sample_program = """# First Steps Sample Program
-# Move forward 3 steps and turn around
-LOOP 3
-  MOVE
-END
-LEFT
-LEFT"""
-        elif self.current_challenge.name == "Key Collector":
-            sample_program = """# Key Collector Sample Program
-# Move to the key and pick it up
-MOVE
-MOVE
-PICK"""
-        elif self.current_challenge.name == "Door Master":
-            sample_program = """# Door Master - Corridor Navigation (Program 1)
-# Navigate twisting corridor with unknown start position/direction  
-# Two-phase strategy: 1) Move to end and get key, 2) Find vertical path
-WHILE FRONT
-  MOVE
-  IF KEY
-    PICK
-  END
-END
-LEFT
-WHILE FRONT
-  MOVE
-  IF DOOR
-    OPEN
-    MOVE
-  END
-  IF EXIT
-    MOVE
-  END
-END
-RIGHT
-WHILE FRONT
-  MOVE
-  IF DOOR
-    OPEN
-    MOVE
-  END
-  IF EXIT
-    MOVE
-  END
-END"""
-        else:
-            sample_program = """# Sample Program
-# Basic movement example
-MOVE
-MOVE
-MOVE"""
+        # Get sample program from centralized module
+        sample_program = SamplePrograms.get_sample_for_challenge(self.current_challenge.name)
         
         self.program_editor.setPlainText(sample_program)
         self.update_analysis()
