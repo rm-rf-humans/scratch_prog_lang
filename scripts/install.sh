@@ -120,6 +120,13 @@ def main():
         action="store_true", 
         help="Show detailed execution steps"
     )
+
+    parser.add_argument(
+        "-m", "--map",
+        choices=["corridor", "room", "multi"],
+        default="room",
+        help="Select world: corridor | room | multi (default: room)"
+    )
     
     parser.add_argument(
         "--version", 
@@ -148,18 +155,20 @@ def main():
         else:
             print(" Demo not available (examples/demo.py not found)")
     elif args.file:
-        execute_sc_file(args.file, args.verbose)
+        execute_sc_file(args.file, args.verbose, args.map)
     else:
         # Default: show help
         parser.print_help()
         print("\n Quick Start:")
-        print("  vault-runner -i          # Interactive mode")
-        print("  vault-runner -g          # Play the game")
-        print("  vault-runner -e          # Try extensions")
-        print("  vault-runner -d          # Run demo")
-        print("  vault-runner program.sc  # Execute .sc file")
+        print("  vault-runner -i                            # Interactive mode")
+        print("  vault-runner -g                            # Play the game")
+        print("  vault-runner -e                            # Try extensions")
+        print("  vault-runner -d                            # Run demo")
+        print("  vault-runner program.sc                    # Execute .sc (room)")
+        print("  vault-runner program.sc -m corridor        # Use corridor map")
+        print("  vault-runner program.sc -m multi           # Use multi-key map")
 
-def execute_sc_file(filename, verbose=False):
+def execute_sc_file(filename, verbose=False, map_name="room"):
     """Execute a .sc file."""
     if not filename.endswith('.sc'):
         print(f" Error: File must have .sc extension")
@@ -204,8 +213,16 @@ def execute_sc_file(filename, verbose=False):
             print(f"   Extensions used: {ext_analysis.get('extension_count', 0)}")
         
         # Create world and runner
-        world = create_room_world()  # Default world
-        runner = VaultRunner(world, (0, 0), 1)  # Start facing East
+        if map_name == "corridor":
+            world = create_corridor_world()
+            start_pos, start_dir = (0, 0), 1  # East
+        elif map_name == "multi":
+            world = create_multi_key_world()
+            start_pos, start_dir = (4, 3), 0  # North
+        else:
+            world = create_room_world()
+            start_pos, start_dir = (0, 0), 1  # East
+        runner = VaultRunner(world, start_pos, start_dir)
         
         print(f"\n Initial world state:")
         runner.display_world()
@@ -285,12 +302,13 @@ echo "   - Vault Runner source files in $INSTALL_DIR"
 echo "   - Example program: $INSTALL_DIR/example.sc"
 echo ""
 echo -e "${BLUE} Usage examples:${NC}"
-echo "   vault-runner -i                    # Interactive mode"
-echo "   vault-runner -g                    # Play the game"
-echo "   vault-runner -e                    # Try extensions"
-echo "   vault-runner -d                    # Run demo"
-echo "   vault-runner example.sc            # Execute .sc file"
-echo "   vault-runner my_program.sc -v      # Execute with verbose output"
+echo "   vault-runner -i                            # Interactive mode"
+echo "   vault-runner -g                            # Play the game"
+echo "   vault-runner -e                            # Try extensions"
+echo "   vault-runner -d                            # Run demo"
+echo "   vault-runner example.sc                    # Execute .sc file (room)"
+echo "   vault-runner my_program.sc -m corridor     # Execute on corridor map"
+echo "   vault-runner my_program.sc -m multi        # Execute on multi-key map"
 echo "   # GUI is available from the main app if installed with dependencies"
 echo ""
 echo -e "${BLUE} Create your first program:${NC}"
