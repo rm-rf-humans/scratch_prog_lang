@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# Vault Runner Language Extension Installer
-# This script installs the Vault Runner language extension for .sc files
+# Vault Runner Language - Universal Installer
+# This script can be run from anywhere to install Vault Runner
 
 set -e
 
-echo "Vault Runner Language Extension Installer"
-echo "=============================================="
+echo "Vault Runner Language - Universal Installer"
+echo "==========================================="
 
 # Colors for output
 RED='\033[0;31m'
@@ -41,15 +41,12 @@ fi
 INSTALL_DIR="$HOME/.vault-runner"
 BIN_DIR="$HOME/.local/bin"
 
-echo -e "${BLUE} Creating installation directory: $INSTALL_DIR${NC}"
+echo -e "${BLUE}Creating installation directory: $INSTALL_DIR${NC}"
 mkdir -p "$INSTALL_DIR"
 mkdir -p "$BIN_DIR"
 
 # Download and install the Vault Runner package
-echo -e "${BLUE} Installing Vault Runner language extension...${NC}"
-
-# Download source files from GitHub
-echo -e "${BLUE} Downloading Vault Runner from GitHub...${NC}"
+echo -e "${BLUE}Downloading Vault Runner from GitHub...${NC}"
 
 # Create temporary directory for download
 TEMP_DIR=$(mktemp -d)
@@ -57,10 +54,10 @@ cd "$TEMP_DIR"
 
 # Download the repository
 if command -v git &> /dev/null; then
-    echo -e "${BLUE} Cloning repository with git...${NC}"
+    echo -e "${BLUE}Cloning repository with git...${NC}"
     git clone https://github.com/rm-rf-humans/scratch_prog_lang.git vault-runner
 else
-    echo -e "${BLUE} Downloading with curl...${NC}"
+    echo -e "${BLUE}Downloading with curl...${NC}"
     # Download as zip and extract
     curl -L -o vault-runner.zip https://github.com/rm-rf-humans/scratch_prog_lang/archive/refs/heads/main.zip
     unzip -q vault-runner.zip
@@ -69,7 +66,7 @@ fi
 
 # Copy the source files to installation directory
 if [ -d "vault-runner/src/scratch" ]; then
-    echo -e "${BLUE} Copying source files...${NC}"
+    echo -e "${BLUE}Copying source files...${NC}"
     cp -r vault-runner/src/scratch "$INSTALL_DIR/"
     [ -d vault-runner/tests ] && cp -r vault-runner/tests "$INSTALL_DIR/" || true
     [ -f vault-runner/pyproject.toml ] && cp vault-runner/pyproject.toml "$INSTALL_DIR/" || true
@@ -81,8 +78,8 @@ if [ -d "vault-runner/src/scratch" ]; then
         cp -r vault-runner/docs "$INSTALL_DIR/"
     fi
 else
-    echo -e "${RED} Failed to download source files from GitHub.${NC}"
-    echo -e "${RED} Please check your internet connection and try again.${NC}"
+    echo -e "${RED}Failed to download source files from GitHub.${NC}"
+    echo -e "${RED}Please check your internet connection and try again.${NC}"
     rm -rf "$TEMP_DIR"
     exit 1
 fi
@@ -91,7 +88,7 @@ fi
 rm -rf "$TEMP_DIR"
 
 # Create the vault-runner executable
-echo -e "${BLUE} Creating vault-runner executable...${NC}"
+echo -e "${BLUE}Creating vault-runner executable...${NC}"
 cat > "$BIN_DIR/vault-runner" << 'EOF'
 #!/usr/bin/env python3
 """
@@ -115,7 +112,7 @@ try:
     from extensions import ExtendedVaultInterpreter, LanguageExtensions
     from game import VaultRunnerGame
 except ImportError as e:
-    print(f" Error importing Vault Runner modules: {e}")
+    print(f"Error importing Vault Runner modules: {e}")
     print("Please ensure Vault Runner is properly installed.")
     sys.exit(1)
 
@@ -176,7 +173,6 @@ def main():
     
     args = parser.parse_args()
     
-    
     # Handle different modes
     if args.interactive:
         import subprocess
@@ -193,13 +189,13 @@ def main():
         if os.path.exists(demo_path):
             subprocess.run([sys.executable, demo_path])
         else:
-            print(" Demo not available (examples/demo.py not found)")
+            print("Demo not available (examples/demo.py not found)")
     elif args.file:
         execute_sc_file(args.file, args.verbose, args.map)
     else:
         # Default: show help
         parser.print_help()
-        print("\n Quick Start:")
+        print("\nQuick Start:")
         print("  vault-runner -i                            # Interactive mode")
         print("  vault-runner -g                            # Play the game")
         print("  vault-runner -e                            # Try extensions")
@@ -211,14 +207,14 @@ def main():
 def execute_sc_file(filename, verbose=False, map_name="room"):
     """Execute a .sc file."""
     if not filename.endswith('.sc'):
-        print(f" Error: File must have .sc extension")
+        print(f"Error: File must have .sc extension")
         sys.exit(1)
     
     if not os.path.exists(filename):
-        print(f" Error: File '{filename}' not found")
+        print(f"Error: File '{filename}' not found")
         sys.exit(1)
     
-    print(f" Executing Vault Runner program: {filename}")
+    print(f"Executing Vault Runner program: {filename}")
     print("=" * 50)
     
     try:
@@ -227,7 +223,7 @@ def execute_sc_file(filename, verbose=False, map_name="room"):
             program_lines = [line.strip() for line in f.readlines() if line.strip()]
         
         if not program_lines:
-            print(" Error: Program file is empty")
+            print("Error: Program file is empty")
             sys.exit(1)
         
         # Check if program uses extensions
@@ -237,20 +233,20 @@ def execute_sc_file(filename, verbose=False, map_name="room"):
         
         # Create interpreter
         if uses_extensions:
-            print(" Using extended interpreter (extensions detected)")
+            print("Using extended interpreter (extensions detected)")
             interpreter = ExtendedVaultInterpreter(program_lines, enable_extensions=True)
         else:
             interpreter = VaultInterpreter(program_lines)
         
         # Analyze program
         analysis = interpreter.analyze_program()
-        print(f" Program Analysis:")
-        print(f"   Total tokens: {analysis['total_tokens']}")
-        print(f"   Distinct tokens: {analysis['distinct_tokens']}/20")
-        print(f"   Control structures: {analysis['control_structures']}")
+        print(f"Program Analysis:")
+        print(f"  Total tokens: {analysis['total_tokens']}")
+        print(f"  Distinct tokens: {analysis['distinct_tokens']}/20")
+        print(f"  Control structures: {analysis['control_structures']}")
         if uses_extensions:
             ext_analysis = LanguageExtensions.analyze_program_complexity(program_lines)
-            print(f"   Extensions used: {ext_analysis.get('extension_count', 0)}")
+            print(f"  Extensions used: {ext_analysis.get('extension_count', 0)}")
         
         # Create world and runner
         if map_name == "corridor":
@@ -264,26 +260,26 @@ def execute_sc_file(filename, verbose=False, map_name="room"):
             start_pos, start_dir = (0, 0), 1  # East
         runner = VaultRunner(world, start_pos, start_dir)
         
-        print(f"\n Initial world state:")
+        print(f"\nInitial world state:")
         runner.display_world()
         
         # Execute program
-        print(f"\n Executing program...")
+        print(f"\nExecuting program...")
         result = interpreter.run(runner, show_steps=verbose)
         
-        print(f"\n Results:")
-        print(f"   Success: {' YES' if result else ' NO'}")
-        print(f"   Instructions executed: {interpreter.instruction_count}")
-        print(f"   Final position: ({runner.x}, {runner.y})")
-        print(f"   Has key: {runner.has_key}")
-        print(f"   Door opened: {runner.door_opened}")
+        print(f"\nResults:")
+        print(f"  Success: {'YES' if result else 'NO'}")
+        print(f"  Instructions executed: {interpreter.instruction_count}")
+        print(f"  Final position: ({runner.x}, {runner.y})")
+        print(f"  Has key: {runner.has_key}")
+        print(f"  Door opened: {runner.door_opened}")
         
         if verbose:
-            print(f"\n Final world state:")
+            print(f"\nFinal world state:")
             runner.display_world()
         
     except Exception as e:
-        print(f" Error executing program: {e}")
+        print(f"Error executing program: {e}")
         if verbose:
             import traceback
             traceback.print_exc()
@@ -297,7 +293,7 @@ EOF
 chmod +x "$BIN_DIR/vault-runner"
 
 # Create a simple .sc file template
-echo -e "${BLUE} Creating example .sc file...${NC}"
+echo -e "${BLUE}Creating example .sc file...${NC}"
 cat > "$INSTALL_DIR/example.sc" << 'EOF'
 # Vault Runner Program Example
 # This is a simple program that moves forward and picks up a key
@@ -313,7 +309,7 @@ EOF
 
 # Add to PATH if not already there
 if [[ ":$PATH:" != *":$BIN_DIR:"* ]]; then
-    echo -e "${YELLOW}  Adding $BIN_DIR to PATH...${NC}"
+    echo -e "${YELLOW}Adding $BIN_DIR to PATH...${NC}"
     
     # Detect shell and add to appropriate profile
     if [ -n "$ZSH_VERSION" ]; then
@@ -328,31 +324,30 @@ if [[ ":$PATH:" != *":$BIN_DIR:"* ]]; then
     echo "# Vault Runner Language Extension" >> "$SHELL_RC"
     echo "export PATH=\"\$PATH:$BIN_DIR\"" >> "$SHELL_RC"
     
-    echo -e "${YELLOW} Added to $SHELL_RC${NC}"
-    echo -e "${YELLOW}   Please run: source $SHELL_RC${NC}"
-    echo -e "${YELLOW}   Or restart your terminal${NC}"
+    echo -e "${YELLOW}Added to $SHELL_RC${NC}"
+    echo -e "${YELLOW}Please run: source $SHELL_RC${NC}"
+    echo -e "${YELLOW}Or restart your terminal${NC}"
 fi
 
 echo ""
-echo -e "${GREEN} Installation completed successfully!${NC}"
+echo -e "${GREEN}Installation completed successfully!${NC}"
 echo ""
-echo -e "${BLUE} What's installed:${NC}"
-echo "   - vault-runner command in $BIN_DIR"
-echo "   - Vault Runner source files in $INSTALL_DIR"
-echo "   - Example program: $INSTALL_DIR/example.sc"
+echo -e "${BLUE}What's installed:${NC}"
+echo "  - vault-runner command in $BIN_DIR"
+echo "  - Vault Runner source files in $INSTALL_DIR"
+echo "  - Example program: $INSTALL_DIR/example.sc"
 echo ""
-echo -e "${BLUE} Usage examples:${NC}"
-echo "   vault-runner -i                            # Interactive mode"
-echo "   vault-runner -g                            # Play the game"
-echo "   vault-runner -e                            # Try extensions"
-echo "   vault-runner -d                            # Run demo"
-echo "   vault-runner example.sc                    # Execute .sc file (room)"
-echo "   vault-runner my_program.sc -m corridor     # Execute on corridor map"
-echo "   vault-runner my_program.sc -m multi        # Execute on multi-key map"
-echo "   # GUI is available from the main app if installed with dependencies"
+echo -e "${BLUE}Usage examples:${NC}"
+echo "  vault-runner -i                            # Interactive mode"
+echo "  vault-runner -g                            # Play the game"
+echo "  vault-runner -e                            # Try extensions"
+echo "  vault-runner -d                            # Run demo"
+echo "  vault-runner example.sc                    # Execute .sc file (room)"
+echo "  vault-runner my_program.sc -m corridor     # Execute on corridor map"
+echo "  vault-runner my_program.sc -m multi        # Execute on multi-key map"
 echo ""
-echo -e "${BLUE} Create your first program:${NC}"
-echo "   echo 'MOVE' > hello.sc"
-echo "   vault-runner hello.sc"
+echo -e "${BLUE}Create your first program:${NC}"
+echo "  echo 'MOVE' > hello.sc"
+echo "  vault-runner hello.sc"
 echo ""
-echo -e "${GREEN}Happy programming with Vault Runner! ${NC}"
+echo -e "${GREEN}Happy programming with Vault Runner!${NC}"
