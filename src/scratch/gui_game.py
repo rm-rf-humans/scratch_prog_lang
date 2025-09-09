@@ -940,7 +940,6 @@ class VaultRunnerGUI(QMainWindow):
                 
             # Check if program is complete
             if self.step_interpreter.pc >= len(self.step_interpreter.tokens) or self.step_runner.escaped:
-                print(f"DEBUG: Completing execution - PC: {self.step_interpreter.pc}/{len(self.step_interpreter.tokens)}, Escaped: {self.step_runner.escaped}")
                 self.complete_step_execution()
                 return
                 
@@ -955,7 +954,6 @@ class VaultRunnerGUI(QMainWindow):
                 return
                 
             current_token = self.step_interpreter.tokens[self.step_interpreter.pc]
-            print(f"DEBUG: Step {self.step_interpreter.instruction_count} - PC: {self.step_interpreter.pc}, Token: {current_token}, Pos: ({self.step_runner.x}, {self.step_runner.y})")
             
             # Ensure interpreter has the runner reference
             if not hasattr(self.step_interpreter, 'runner') or self.step_interpreter.runner != self.step_runner:
@@ -980,11 +978,16 @@ class VaultRunnerGUI(QMainWindow):
                 
                 # The _execute_instruction method expects (token, show_steps)
                 # It uses self.runner internally, so we need to make sure it's set
+                old_pc = self.step_interpreter.pc
                 self.step_interpreter._execute_instruction(current_token, True)
                 
-                # Advance program counter (like the normal run loop)
-                # The _execute_instruction method handles control flow PC changes internally
-                self.step_interpreter.pc += 1
+                # Only increment PC if _execute_instruction didn't change it
+                # Control flow instructions (IF, WHILE, LOOP, END) handle PC internally
+                if self.step_interpreter.pc == old_pc:
+                    self.step_interpreter.pc += 1
+                
+                # Check if robot escaped after instruction execution
+                self.step_runner.check_escape()
                 
                 # Update the world display after each instruction
                 self.update_step_display()

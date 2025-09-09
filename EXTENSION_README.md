@@ -201,26 +201,6 @@ WAIT 3
 MOVE
 ```
 
-## 🛠️ Development
-
-The extension is built on the core Vault Runner language with:
-- Enhanced interpreter with better error handling
-- Language extensions for advanced features
-- Interactive game with challenges
-- Comprehensive testing and analysis
-
 ##  License
 
 MIT License - see LICENSE file for details.
-
-##  Contributing
-
-1. Fork the repository
-2. Create your feature branch
-3. Commit your changes
-4. Push to the branch
-5. Open a Pull Request
-
----
-
-**Happy programming with Vault Runner! **

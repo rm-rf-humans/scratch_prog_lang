@@ -154,9 +154,13 @@ class VaultInterpreter:
                     print(f"PC: {self.pc:3d}, Token: {token:6s}, Pos: ({self.runner.x}, {self.runner.y}), Dir: {self.runner.direction}")
                 
                 # Execute the current instruction
+                old_pc = self.pc
                 self._execute_instruction(token, show_steps)
                 
-                self.pc += 1
+                # Only increment PC if _execute_instruction didn't change it
+                # Control flow instructions (IF, WHILE, LOOP, END) handle PC internally
+                if self.pc == old_pc:
+                    self.pc += 1
                 self.runner.check_escape()
                 
         except Exception as e:
@@ -240,6 +244,8 @@ class VaultInterpreter:
             end_pc = self._find_matching_end(self.pc)
             
             if condition:
+                # Add IF to call stack so sensor tokens know they're in IF context
+                self.call_stack.append(('IF', self.pc, end_pc, None))
                 self.pc += 1  # Skip the sensor, continue with IF body
             else:
                 self.pc = end_pc  # Skip to END
